@@ -151,8 +151,8 @@ export default function CustomerSubscriptionPage() {
                 {currentPlanCode === 'TRIAL'
                   ? '30-day evaluation • 30 mins recording per day'
                   : currentPlanCode === 'SILVER'
-                  ? 'Unlimited local recording • $19/month'
-                  : 'Unlimited recording + AI Meeting Intelligence • $39/month'}
+                  ? 'Unlimited local recording • ₹549/month'
+                  : 'Unlimited recording + AI Meeting Intelligence • ₹1,249/month'}
               </p>
             </div>
           </div>
@@ -177,24 +177,36 @@ export default function CustomerSubscriptionPage() {
           <div>
             <span className="block text-zinc-500 text-[11px]">Period Started</span>
             <span className="font-medium text-zinc-200">
-              {sub?.currentPeriodStart ? new Date(sub.currentPeriodStart).toLocaleDateString() : 'N/A'}
+              {sub?.currentPeriodStart
+                ? new Date(sub.currentPeriodStart).toLocaleDateString()
+                : user?.trial?.startedAt
+                ? new Date(user.trial.startedAt).toLocaleDateString()
+                : user?.createdAt
+                ? new Date(user.createdAt).toLocaleDateString()
+                : 'N/A'}
             </span>
           </div>
           <div>
             <span className="block text-zinc-500 text-[11px]">Next Renewal / Expiry</span>
             <span className="font-medium text-zinc-200">
-              {sub?.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString() : 'N/A'}
+              {sub?.currentPeriodEnd
+                ? new Date(sub.currentPeriodEnd).toLocaleDateString()
+                : user?.trial?.expiresAt
+                ? new Date(user.trial.expiresAt).toLocaleDateString()
+                : user?.createdAt
+                ? new Date(new Date(user.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+                : 'N/A'}
             </span>
           </div>
           <div>
             <span className="block text-zinc-500 text-[11px]">Auto-Renew</span>
             <span className="font-medium text-zinc-200">
-              {sub?.cancelAtPeriodEnd ? 'Cancels at period end' : 'Enabled'}
+              {sub ? (sub.cancelAtPeriodEnd ? 'Cancels at period end' : 'Enabled') : 'Trial Evaluation'}
             </span>
           </div>
           <div>
             <span className="block text-zinc-500 text-[11px]">Billing Currency</span>
-            <span className="font-medium text-zinc-200">{sub?.plan?.currency || 'USD'}</span>
+            <span className="font-medium text-zinc-200">{sub?.plan?.currency || 'INR'}</span>
           </div>
         </div>
       </Card>
@@ -215,7 +227,7 @@ export default function CustomerSubscriptionPage() {
                 <span className="text-sm font-semibold text-zinc-200">Free Trial</span>
                 {currentPlanCode === 'TRIAL' && <Badge variant="zinc">Current</Badge>}
               </div>
-              <div className="text-2xl font-bold text-white">$0</div>
+              <div className="text-2xl font-bold text-white">₹0</div>
               <p className="text-xs text-zinc-400">30 minutes recording per day</p>
               <ul className="space-y-2 pt-3 border-t border-white/10 text-xs text-zinc-300">
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-emerald-400" /> 30-day evaluation</li>
@@ -237,7 +249,7 @@ export default function CustomerSubscriptionPage() {
                 <span className="text-sm font-semibold text-rose-300">Silver Plan</span>
                 {currentPlanCode === 'SILVER' && <Badge variant="rose">Current</Badge>}
               </div>
-              <div className="text-2xl font-bold text-white">$19 <span className="text-xs font-normal text-zinc-400">/ mo</span></div>
+              <div className="text-2xl font-bold text-white">₹549 <span className="text-xs font-normal text-zinc-400">/ mo</span></div>
               <p className="text-xs text-zinc-400">Unlimited daily meeting recording</p>
               <ul className="space-y-2 pt-3 border-t border-white/10 text-xs text-zinc-300">
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-rose-400" /> Unlimited recording time</li>
@@ -276,7 +288,7 @@ export default function CustomerSubscriptionPage() {
                 <span className="text-sm font-semibold text-amber-300">Gold Plan</span>
                 {currentPlanCode === 'GOLD' && <Badge variant="amber">Current</Badge>}
               </div>
-              <div className="text-2xl font-bold text-white">$39 <span className="text-xs font-normal text-zinc-400">/ mo</span></div>
+              <div className="text-2xl font-bold text-white">₹1,249 <span className="text-xs font-normal text-zinc-400">/ mo</span></div>
               <p className="text-xs text-zinc-400">Full Recording + AI Meeting Intelligence</p>
               <ul className="space-y-2 pt-3 border-t border-white/10 text-xs text-zinc-300">
                 <li className="flex items-center gap-2"><Check className="w-3.5 h-3.5 text-amber-400" /> Everything in Silver</li>
@@ -337,13 +349,13 @@ export default function CustomerSubscriptionPage() {
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
                 <span className="text-zinc-400">Estimated Proration:</span>
                 <span className="font-mono text-zinc-200">
-                  ${((previewData.estimatedProration || 0) / 100).toFixed(2)} {previewData.currency || 'USD'}
+                  ₹{((previewData.estimatedProration || 0) / 100).toFixed(0)} {previewData.currency || 'INR'}
                 </span>
               </div>
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
                 <span className="text-zinc-400">Estimated Due Today:</span>
                 <span className="font-bold font-mono text-emerald-400 text-sm">
-                  ${((previewData.estimatedAmountDue || 0) / 100).toFixed(2)} {previewData.currency || 'USD'}
+                  ₹{((previewData.estimatedAmountDue || 0) / 100).toFixed(0)} {previewData.currency || 'INR'}
                 </span>
               </div>
               <div className="flex items-center justify-between">

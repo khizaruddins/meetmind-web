@@ -55,12 +55,12 @@ export default function CustomerDashboardPage() {
     return <LoadingSkeleton rows={6} />;
   }
 
-  const usageToday = data?.usage?.usedTodaySeconds ?? data?.usageTodaySeconds ?? 0;
+  const usageToday = data?.usage?.usedTodaySeconds ?? data?.usage?.todaySeconds ?? data?.usageTodaySeconds ?? 0;
   const dailyLimit = data?.usage?.dailyLimitSeconds ?? data?.dailyLimitSeconds ?? 1800;
   const usagePercentage = Math.min(100, Math.round((usageToday / (dailyLimit || 1)) * 100));
-  const recordingsThisMonth = data?.recordings?.thisMonthCount ?? data?.recordingsThisMonth ?? 0;
-  const totalRecordingSecondsMonth = data?.recordings?.totalSecondsMonth ?? data?.totalRecordingSecondsMonth ?? 0;
-  const activeDevicesCount = data?.devices?.activeCount ?? data?.activeDevicesCount ?? 1;
+  const recordingsThisMonth = data?.recordings?.thisMonthCount ?? data?.recordings?.month ?? data?.recordingsThisMonth ?? 0;
+  const totalRecordingSecondsMonth = data?.recordings?.totalSecondsMonth ?? data?.recordings?.monthSeconds ?? data?.totalRecordingSecondsMonth ?? 0;
+  const activeDevicesCount = data?.devices?.activeCount ?? data?.devices?.count ?? data?.activeDevicesCount ?? data?.deviceCount ?? 1;
   const recentRecordings = data?.recordings?.recent ?? data?.recentRecordings ?? [];
 
   return (

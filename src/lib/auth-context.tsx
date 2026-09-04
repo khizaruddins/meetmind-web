@@ -30,8 +30,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
     try {
-      const res = await authApi.getMe();
-      setUser(res.user);
+      const res: any = await authApi.getMe();
+      const userData = res?.user || res;
+      setUser(userData);
     } catch {
       setCustomerToken(null);
       setUser(null);

@@ -27,7 +27,7 @@ export const FaqAccordion: React.FC = () => {
     },
     {
       q: 'What happens when my 30-day trial expires?',
-      a: 'You can continue enjoying unlimited recording by upgrading to Silver ($19/mo) or unlock AI transcription and meeting intelligence with Gold ($39/mo).',
+      a: 'You can continue enjoying unlimited recording by upgrading to Silver (₹549/mo) or unlock AI transcription and meeting intelligence with Gold (₹1,249/mo).',
     },
     {
       q: 'How do I install the Chrome integration?',

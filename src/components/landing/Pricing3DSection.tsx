@@ -31,7 +31,7 @@ export const Pricing3DSection: React.FC = () => {
               </span>
             </div>
             <div className="space-y-1">
-              <div className="text-3xl font-bold text-white font-heading">$0</div>
+              <div className="text-3xl font-bold text-white font-heading">₹0</div>
               <p className="text-xs text-zinc-400">30-day evaluation period</p>
             </div>
 
@@ -80,7 +80,7 @@ export const Pricing3DSection: React.FC = () => {
             </div>
             <div className="space-y-1">
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-white font-heading">$19</span>
+                <span className="text-3xl font-bold text-white font-heading">₹549</span>
                 <span className="text-xs text-zinc-400">/ month</span>
               </div>
               <p className="text-xs text-zinc-400">Unlimited daily local recording</p>
@@ -139,7 +139,7 @@ export const Pricing3DSection: React.FC = () => {
             </div>
             <div className="space-y-1">
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-white font-heading">$39</span>
+                <span className="text-3xl font-bold text-white font-heading">₹1,249</span>
                 <span className="text-xs text-zinc-400">/ month</span>
               </div>
               <p className="text-xs text-zinc-400">Full Recording + AI Meeting Intelligence</p>

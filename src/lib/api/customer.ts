@@ -23,6 +23,20 @@ export const customerApi = {
     return apiClient('/profile', {}, 'customer');
   },
 
+  async updateProfile(data: {
+    firstName?: string;
+    lastName?: string;
+    displayName?: string;
+    timezone?: string;
+    language?: string;
+    country?: string;
+  }): Promise<any> {
+    return apiClient('/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }, 'customer');
+  },
+
   async getRecordings(params?: { limit?: number; page?: number; offset?: number }): Promise<any> {
     const query = new URLSearchParams();
     if (params?.limit) query.set('limit', String(params.limit));

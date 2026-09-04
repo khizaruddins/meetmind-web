@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '../../../components/shared/Card';
 import { Button } from '../../../components/shared/Button';
 import { Badge } from '../../../components/shared/Badge';
-import { Shield, Key, Laptop, Smartphone, Globe, LogOut, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { Shield, Key, Laptop, Smartphone, Globe, LogOut, CheckCircle2, AlertCircle, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../../lib/auth-context';
 import { authApi } from '../../../lib/api/auth';
 
@@ -23,6 +23,8 @@ export default function CustomerSecurityPage() {
   const { user, logout } = useAuth();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [saved, setSaved] = useState(false);
 
   const [sessions, setSessions] = useState<CustomerSession[]>([]);
@@ -234,25 +236,45 @@ export default function CustomerSecurityPage() {
         <form onSubmit={handlePasswordChange} className="space-y-4 text-xs max-w-md">
           <div className="space-y-1">
             <label className="text-zinc-300">Current Password</label>
-            <input
-              type="password"
-              required
-              value={oldPassword}
-              onChange={(e) => setOldPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-zinc-900 border border-white/10 rounded-xl text-white focus:outline-none focus:border-rose-500"
-            />
+            <div className="relative">
+              <input
+                type={showOldPassword ? 'text' : 'password'}
+                required
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                className="w-full pl-3 pr-10 py-2 bg-zinc-900 border border-white/10 rounded-xl text-white focus:outline-none focus:border-rose-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowOldPassword(!showOldPassword)}
+                className="absolute right-3 top-2 text-zinc-500 hover:text-zinc-300 p-0.5 rounded transition-colors"
+                aria-label={showOldPassword ? 'Hide password' : 'Show password'}
+              >
+                {showOldPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-1">
             <label className="text-zinc-300">New Password</label>
-            <input
-              type="password"
-              required
-              minLength={8}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-zinc-900 border border-white/10 rounded-xl text-white focus:outline-none focus:border-rose-500"
-            />
+            <div className="relative">
+              <input
+                type={showNewPassword ? 'text' : 'password'}
+                required
+                minLength={8}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full pl-3 pr-10 py-2 bg-zinc-900 border border-white/10 rounded-xl text-white focus:outline-none focus:border-rose-500"
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-3 top-2 text-zinc-500 hover:text-zinc-300 p-0.5 rounded transition-colors"
+                aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+              >
+                {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <Button type="submit" size="sm">

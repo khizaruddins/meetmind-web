@@ -9,8 +9,10 @@ import { Card } from '../../../components/shared/Card';
 import { Badge } from '../../../components/shared/Badge';
 import { Button } from '../../../components/shared/Button';
 import { LoadingSkeleton } from '../../../components/shared/LoadingSkeleton';
+import { useAuth } from '../../../lib/auth-context';
 
 export default function CustomerBillingPage() {
+  const { user } = useAuth();
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodInfo[]>([]);
   const [invoices, setInvoices] = useState<InvoiceInfo[]>([]);
   const [sub, setSub] = useState<SubscriptionInfo | null>(null);
@@ -113,13 +115,19 @@ export default function CustomerBillingPage() {
             <div className="flex justify-between py-1">
               <span className="text-zinc-400">Next Billing Date</span>
               <span className="font-semibold text-white">
-                {sub?.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString() : 'N/A'}
+                {sub?.currentPeriodEnd
+                  ? new Date(sub.currentPeriodEnd).toLocaleDateString()
+                  : user?.trial?.expiresAt
+                  ? new Date(user.trial.expiresAt).toLocaleDateString()
+                  : user?.createdAt
+                  ? new Date(new Date(user.createdAt).getTime() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
+                  : '30-Day Evaluation'}
               </span>
             </div>
             <div className="flex justify-between py-1 border-t border-white/10 pt-2 text-sm">
               <span className="font-semibold text-white">Total Amount</span>
               <span className="font-bold text-rose-400">
-                ${((sub?.plan?.priceAmount || 0) / 100).toFixed(2)} USD
+                {sub ? `₹${((sub?.plan?.priceAmount || 0) / 100).toFixed(0)} INR` : '₹0 INR'}
               </span>
             </div>
           </div>
@@ -153,7 +161,7 @@ export default function CustomerBillingPage() {
                     <td className="py-3 px-3 text-zinc-400">
                       {new Date(inv.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="py-3 px-3 font-semibold">${(inv.amount / 100).toFixed(2)}</td>
+                    <td className="py-3 px-3 font-semibold">₹{((inv.amount || 0) / 100).toFixed(0)}</td>
                     <td className="py-3 px-3">
                       <Badge variant={inv.status === 'PAID' ? 'emerald' : 'amber'} size="sm">
                         {inv.status}

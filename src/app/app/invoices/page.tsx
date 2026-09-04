@@ -23,8 +23,8 @@ export default function CustomerInvoicesPage() {
   }, []);
 
   const handleDownload = (id: string, number: string) => {
-    // Direct link to backend invoice download endpoint
-    window.open(`http://localhost:3001/v1/invoices/${id}/download`, '_blank');
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1';
+    window.open(`${apiBase}/invoices/${id}/download`, '_blank');
   };
 
   return (
@@ -63,7 +63,7 @@ export default function CustomerInvoicesPage() {
                       {new Date(inv.createdAt).toLocaleDateString()}
                     </td>
                     <td className="py-3 px-3">{inv.planName || 'Monthly Subscription'}</td>
-                    <td className="py-3 px-3 font-semibold">${(inv.amount / 100).toFixed(2)} USD</td>
+                    <td className="py-3 px-3 font-semibold">₹{((inv.amount || 0) / 100).toFixed(0)} {inv.currency || 'INR'}</td>
                     <td className="py-3 px-3">
                       <Badge variant={inv.status === 'PAID' ? 'emerald' : 'amber'} size="sm">
                         {inv.status}
