@@ -11,7 +11,7 @@ interface AuthContextType {
   loading: boolean;
   login: (email: string, pass: string) => Promise<void>;
   signup: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<void>;
-  logout: () => Promise<void>;
+  logout: (redirectOrEvent?: any) => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
@@ -66,10 +66,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = async () => {
+  const logout = async (redirectOrEvent?: any) => {
     await authApi.logout();
     setUser(null);
-    router.push('/login');
+    const path = typeof redirectOrEvent === 'string' ? redirectOrEvent : '/login';
+    if (path) {
+      router.push(path);
+    }
   };
 
   return (
@@ -82,7 +85,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    return {
+      user: null,
+      loading: false,
+      login: async () => {},
+      signup: async () => {},
+      logout: async () => {},
+      refreshUser: async () => {},
+    };
   }
   return context;
 };

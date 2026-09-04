@@ -23,10 +23,14 @@ export const customerApi = {
     return apiClient('/profile', {}, 'customer');
   },
 
-  async getRecordings(params?: { limit?: number; offset?: number }): Promise<{ recordings: RecordingMetadata[]; total: number }> {
+  async getRecordings(params?: { limit?: number; page?: number; offset?: number }): Promise<any> {
     const query = new URLSearchParams();
     if (params?.limit) query.set('limit', String(params.limit));
-    if (params?.offset) query.set('offset', String(params.offset));
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.offset && !params?.page) {
+      const page = Math.floor(params.offset / (params.limit || 50)) + 1;
+      query.set('page', String(page));
+    }
     const qs = query.toString() ? `?${query.toString()}` : '';
     return apiClient(`/recordings${qs}`, {}, 'customer');
   },

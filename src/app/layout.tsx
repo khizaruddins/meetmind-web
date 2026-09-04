@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { AppProviders } from '../components/providers/AppProviders';
 
 export const metadata: Metadata = {
   title: 'MeetMind — Automatic Meeting Recorder & Intelligence',
@@ -38,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <body className="min-h-screen bg-[#09090b] text-zinc-100 antialiased selection:bg-rose-500 selection:text-white">
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

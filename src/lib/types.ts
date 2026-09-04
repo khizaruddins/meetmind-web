@@ -61,7 +61,7 @@ export interface RecordingMetadata {
   platform: string; // 'Google Meet', 'Manual', etc.
   durationSeconds: number;
   captureMode: string;
-  status: 'COMPLETED' | 'FAILED' | 'RECORDING';
+  status: 'COMPLETED' | 'FAILED' | 'RECORDING' | 'ACTIVE' | string;
   deviceName?: string;
   devicePlatform?: string;
   createdAt: string;

@@ -44,9 +44,5 @@ function AuthenticatedCustomerArea({ children }: { children: React.ReactNode }) 
 }
 
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <AuthProvider>
-      <AuthenticatedCustomerArea>{children}</AuthenticatedCustomerArea>
-    </AuthProvider>
-  );
+  return <AuthenticatedCustomerArea>{children}</AuthenticatedCustomerArea>;
 }

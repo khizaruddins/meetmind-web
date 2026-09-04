@@ -91,7 +91,7 @@ export const CustomerSidebar: React.FC = () => {
         </div>
 
         <button
-          onClick={logout}
+          onClick={() => logout()}
           className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
         >
           <LogOut className="w-4 h-4" />

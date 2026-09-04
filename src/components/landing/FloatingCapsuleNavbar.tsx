@@ -2,12 +2,22 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, Shield, Download, Menu, X } from 'lucide-react';
+import { Sparkles, ArrowRight, Shield, Download, Menu, X, LayoutDashboard, LogOut } from 'lucide-react';
 import { Button } from '../shared/Button';
+import { useAuth } from '../../lib/auth-context';
+import { getCustomerToken } from '../../lib/api/client';
 
 export const FloatingCapsuleNavbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, loading, logout } = useAuth();
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    setHasToken(!!getCustomerToken());
+  }, [user]);
+
+  const isAuthenticated = !!user || (!loading && hasToken);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,18 +85,39 @@ export const FloatingCapsuleNavbar: React.FC = () => {
 
         {/* Right CTA Actions */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="text-xs font-medium text-zinc-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/[0.05] transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link href="/register">
-            <Button size="sm" className="shadow-rose-500/20">
-              <span>Start Free Trial</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Button>
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <Link href="/app/dashboard">
+                <Button size="sm" variant="primary" className="shadow-rose-500/20">
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  <span>Dashboard</span>
+                </Button>
+              </Link>
+              <button
+                onClick={() => logout('/')}
+                className="text-xs font-medium text-zinc-400 hover:text-rose-400 px-3 py-2 rounded-lg hover:bg-white/[0.05] transition-colors flex items-center gap-1.5"
+                title="Log Out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="text-xs font-medium text-zinc-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/[0.05] transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link href="/register">
+                <Button size="sm" className="shadow-rose-500/20">
+                  <span>Start Free Trial</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile menu toggle */}
@@ -138,16 +169,39 @@ export const FloatingCapsuleNavbar: React.FC = () => {
             Documentation
           </Link>
           <div className="pt-3 border-t border-white/10 flex flex-col gap-2">
-            <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-              <Button variant="outline" size="sm" className="w-full">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-              <Button size="sm" className="w-full">
-                Start Free Trial
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link href="/app/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                  <Button size="sm" className="w-full justify-center">
+                    <LayoutDashboard className="w-3.5 h-3.5 mr-1.5" />
+                    <span>Dashboard</span>
+                  </Button>
+                </Link>
+                <button
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    logout('/');
+                  }}
+                  className="w-full py-2 px-3 text-xs font-medium text-zinc-400 hover:text-rose-400 hover:bg-white/[0.05] rounded-lg transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Log Out</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                  <Button size="sm" className="w-full">
+                    Start Free Trial
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       )}

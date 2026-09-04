@@ -1,14 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authApi } from '../../../lib/api/auth';
+import { useAuth } from '../../../lib/auth-context';
+import { getCustomerToken } from '../../../lib/api/client';
 import { Button } from '../../../components/shared/Button';
 import { Card } from '../../../components/shared/Card';
 import { Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export default function RegisterPage() {
+  const { user, loading: authLoading } = useAuth();
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -18,6 +22,25 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const token = getCustomerToken();
+    if (!authLoading) {
+      if (user || token) {
+        router.replace('/app/dashboard');
+      } else {
+        setCheckingAuth(false);
+      }
+    }
+  }, [user, authLoading, router]);
+
+  if (authLoading || (checkingAuth && typeof window !== 'undefined' && getCustomerToken())) {
+    return (
+      <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
+        <div className="w-8 h-8 rounded-full border-2 border-rose-500/30 border-t-rose-500 animate-spin" />
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
