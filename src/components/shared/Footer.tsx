@@ -1,18 +1,16 @@
 import React from 'react';
 import Link from 'next/link';
 import { ShieldCheck, HardDrive, Cpu, Terminal } from 'lucide-react';
+import { MeetMindLogo } from './MeetMindLogo';
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-white/[0.08] bg-[#070709] text-zinc-400 text-xs py-14 px-6">
-      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
+    <footer className="w-full border-t border-white/[0.08] bg-[#07070a] pt-16 pb-12 text-zinc-400 text-xs">
+      <div className="max-w-6xl mx-auto px-6 grid grid-cols-2 md:grid-cols-5 gap-8">
         {/* Brand info */}
         <div className="col-span-2 space-y-3">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-rose-500 to-amber-500 flex items-center justify-center shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-white" />
-            </div>
-            <span className="text-sm font-bold text-white font-heading">MeetMind</span>
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <MeetMindLogo size="xs" showText />
           </Link>
           <p className="text-xs text-zinc-400 max-w-sm leading-relaxed">
             The private-by-design meeting recorder. Automatically captures Google Meet conversations with

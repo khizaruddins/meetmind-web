@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 128" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient for Icon Container -->
+    <linearGradient id="logoBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#181826"/>
+      <stop offset="100%" stop-color="#08080E"/>
+    </linearGradient>
+
+    <!-- Glass Rim -->
+    <linearGradient id="logoRimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.02"/>
+    </linearGradient>
+
+    <!-- Gradient for Text / Mark -->
+    <linearGradient id="logoTextGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F43F5E"/>
+      <stop offset="50%" stop-color="#FB7185"/>
+      <stop offset="100%" stop-color="#FBBF24"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dark Canvas Base -->
+  <rect width="100%" height="100%" rx="24" fill="#09090F" />
+
+  <!-- Left Icon Mark Container -->
+  <g transform="translate(16, 16)">
+    <rect x="0" y="0" width="96" height="96" rx="26" fill="url(#logoBgGrad)"/>
+    <rect x="0.5" y="0.5" width="95" height="95" rx="25.5" fill="none" stroke="url(#logoRimGrad)" stroke-width="1.5"/>
+
+    <!-- Scaled Vector Mark -->
+    <g transform="translate(10, 10) scale(0.15)">
+      <!-- Outer Arch -->
+      <path d="M112 352 V216 C112 164 154 132 202 132 C240 132 256 162 256 190"
+            fill="none" stroke="#F43F5E" stroke-width="48" stroke-linecap="round"/>
+      <path d="M400 352 V216 C400 164 358 132 310 132 C272 132 256 162 256 190"
+            fill="none" stroke="#FB923C" stroke-width="48" stroke-linecap="round"/>
+      <!-- Inner Chevron -->
+      <path d="M192 232 L256 324 L320 232"
+            fill="none" stroke="#F43F5E" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Core Record Lens -->
+      <circle cx="256" cy="188" r="28" fill="#F43F5E" opacity="0.4"/>
+      <circle cx="256" cy="188" r="16" fill="#F43F5E"/>
+      <circle cx="256" cy="188" r="8" fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- Typography -->
+  <g transform="translate(132, 70)">
+    <text font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          font-weight="800" font-size="44" letter-spacing="-1">
+      <tspan fill="#FFFFFF">Meet</tspan>
+      <tspan fill="url(#logoTextGrad)">Mind</tspan>
+    </text>
+    <text y="22" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+          font-weight="600" font-size="12" fill="#71717A" letter-spacing="3">
+      AUTOMATIC RECORDER
+    </text>
+  </g>
+</svg>

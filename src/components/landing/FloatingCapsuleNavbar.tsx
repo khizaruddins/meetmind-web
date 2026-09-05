@@ -7,6 +7,8 @@ import { Button } from '../shared/Button';
 import { useAuth } from '../../lib/auth-context';
 import { getCustomerToken } from '../../lib/api/client';
 
+import { MeetMindLogo } from '../shared/MeetMindLogo';
+
 export const FloatingCapsuleNavbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,15 +40,7 @@ export const FloatingCapsuleNavbar: React.FC = () => {
       >
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 shadow-md shadow-rose-500/25 group-hover:scale-105 transition-transform">
-            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-bold tracking-tight text-white font-heading">
-              MeetMind
-            </span>
-            <span className="text-[10px] text-zinc-400 -mt-1 font-mono">Recorder</span>
-          </div>
+          <MeetMindLogo size="sm" showText subtitle="Recorder" />
         </Link>
 
         {/* Center Nav Links (Desktop) */}

@@ -20,6 +20,7 @@ import {
   Layers,
 } from 'lucide-react';
 import { useAdminAuth } from '../../lib/admin-auth-context';
+import { MeetMindLogo } from '../shared/MeetMindLogo';
 
 export const AdminSidebar: React.FC = () => {
   const pathname = usePathname();
@@ -45,16 +46,8 @@ export const AdminSidebar: React.FC = () => {
     <aside className="w-64 border-r border-white/[0.08] bg-[#0b0c12] flex flex-col justify-between p-4 min-h-screen">
       <div className="space-y-6">
         {/* Brand Logo */}
-        <Link href="/admin/dashboard" className="flex items-center gap-2.5 px-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center shadow-md shadow-amber-500/20">
-            <ShieldCheck className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <span className="text-sm font-bold tracking-tight text-white font-heading">
-              MeetMind
-            </span>
-            <span className="block text-[10px] text-amber-400 font-mono -mt-1">Staff Administration</span>
-          </div>
+        <Link href="/admin/dashboard" className="flex items-center gap-2.5 px-2 group">
+          <MeetMindLogo size="sm" showText subtitle="Staff Administration" />
         </Link>
 
         {/* Nav Items */}

@@ -16,8 +16,10 @@ import {
   Activity,
   LogOut,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 import { useAuth } from '../../lib/auth-context';
+import { MeetMindLogo } from '../shared/MeetMindLogo';
 
 export const CustomerSidebar: React.FC = () => {
   const pathname = usePathname();
@@ -25,13 +27,13 @@ export const CustomerSidebar: React.FC = () => {
 
   const navItems = [
     { href: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/app/recordings', label: 'Recent Recordings', icon: Video },
-    { href: '/app/subscription', label: 'Subscription & Plans', icon: Sparkles },
-    { href: '/app/billing', label: 'Billing Summary', icon: CreditCard },
+    { href: '/app/recordings', label: 'Recordings', icon: Video },
+    { href: '/app/subscription', label: 'Subscription', icon: CreditCard },
+    { href: '/app/billing', label: 'Billing & Usage', icon: Zap },
     { href: '/app/invoices', label: 'Invoices', icon: Receipt },
     { href: '/app/payment-methods', label: 'Payment Methods', icon: Wallet },
-    { href: '/app/devices', label: 'Registered Devices', icon: Laptop },
-    { href: '/app/account', label: 'Profile & Account', icon: User },
+    { href: '/app/devices', label: 'Active Devices', icon: Laptop },
+    { href: '/app/account', label: 'Account Profile', icon: User },
     { href: '/app/security', label: 'Security & Sessions', icon: Shield },
     { href: '/app/downloads', label: 'App Downloads', icon: Download },
     { href: '/app/account/activity', label: 'Activity Log', icon: Activity },
@@ -41,16 +43,8 @@ export const CustomerSidebar: React.FC = () => {
     <aside className="w-64 border-r border-white/[0.08] bg-[#0c0d13] flex flex-col justify-between p-4 min-h-screen">
       <div className="space-y-6">
         {/* Brand Logo */}
-        <Link href="/app/dashboard" className="flex items-center gap-2.5 px-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-amber-500 flex items-center justify-center shadow-md shadow-rose-500/20">
-            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
-          </div>
-          <div>
-            <span className="text-sm font-bold tracking-tight text-white font-heading">
-              MeetMind
-            </span>
-            <span className="block text-[10px] text-zinc-500 font-mono -mt-1">Customer Portal</span>
-          </div>
+        <Link href="/app/dashboard" className="flex items-center gap-2.5 px-2 group">
+          <MeetMindLogo size="sm" showText subtitle="Customer Portal" />
         </Link>
 
         {/* Navigation list */}

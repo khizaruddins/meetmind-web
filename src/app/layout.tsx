@@ -29,6 +29,16 @@ export const metadata: Metadata = {
     title: 'MeetMind — The Intelligent Meeting Recorder',
     description: 'Automatic Google Meet capture with local MP4 storage and crystal-clear audio.',
   },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
 };
 
 export default function RootLayout({
