@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { UserProfile } from './types';
+import { UserProfile, SubscriptionInfo } from './types';
 import { authApi } from './api/auth';
 import {
   getCustomerToken,
@@ -16,18 +16,44 @@ import { useRouter } from 'next/navigation';
 interface AuthContextType {
   user: UserProfile | null;
   loading: boolean;
+  activePlan: string;
+  isTrial: boolean;
+  activeSubscription: SubscriptionInfo | null;
   login: (email: string, pass: string) => Promise<any>;
   signup: (data: { firstName: string; lastName: string; email: string; password: string }) => Promise<any>;
   logout: (redirectOrEvent?: any) => Promise<void>;
   refreshUser: () => Promise<void>;
 }
 
+export function getActiveSubscription(user: UserProfile | null): SubscriptionInfo | null {
+  if (!user || !user.subscriptions) return null;
+  return user.subscriptions.find((s) => s.status === 'ACTIVE') || null;
+}
+
+export function getUserActivePlanCode(user: UserProfile | null): string {
+  if (!user) return 'TRIAL';
+  const activeSub = getActiveSubscription(user);
+  if (activeSub && activeSub.plan?.code && activeSub.plan.code !== 'TRIAL') {
+    return activeSub.plan.code.toUpperCase();
+  }
+  return 'TRIAL';
+}
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(() => getCustomerUser());
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
+
+  const activeSubscription = user?.subscriptions?.find((s) => s.status === 'ACTIVE') || null;
+  const isPaidActive = Boolean(
+    activeSubscription &&
+    activeSubscription.plan?.code &&
+    activeSubscription.plan.code !== 'TRIAL'
+  );
+  const activePlan = isPaidActive ? activeSubscription!.plan.code.toUpperCase() : 'TRIAL';
+  const isTrial = !isPaidActive;
 
   const refreshUser = async () => {
     const token = getCustomerToken();
@@ -75,6 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    const cached = getCustomerUser();
+    if (cached) {
+      setUser(cached);
+    }
     refreshUser();
   }, []);
 
@@ -113,7 +143,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, signup, logout, refreshUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        activePlan,
+        isTrial,
+        activeSubscription,
+        login,
+        signup,
+        logout,
+        refreshUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -125,6 +167,9 @@ export const useAuth = () => {
     return {
       user: null,
       loading: false,
+      activePlan: 'TRIAL',
+      isTrial: true,
+      activeSubscription: null,
       login: async () => {},
       signup: async () => {},
       logout: async () => {},

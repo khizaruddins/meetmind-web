@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../../lib/auth-context';
 import { CustomerSidebar } from '../../components/customer/CustomerSidebar';
@@ -9,16 +9,21 @@ import { getCustomerToken, getCustomerRefreshToken } from '../../lib/api/client'
 
 function AuthenticatedCustomerArea({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!loading && !user && !getCustomerToken() && !getCustomerRefreshToken()) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !loading && !user && !getCustomerToken() && !getCustomerRefreshToken()) {
       router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
     }
-  }, [user, loading, router, pathname]);
+  }, [mounted, user, loading, router, pathname]);
 
-  if (loading && !user) {
+  if (!mounted) {
     return (
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-rose-500/30 border-t-rose-500 animate-spin" />

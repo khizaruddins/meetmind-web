@@ -82,7 +82,10 @@ export const adminApi = {
     if (params?.page) query.set('page', String(params.page));
     if (params?.limit) query.set('limit', String(params.limit));
     const qs = query.toString() ? `?${query.toString()}` : '';
-    return apiClient(`/admin/users${qs}`, {}, 'admin');
+    const res: any = await apiClient(`/admin/users${qs}`, {}, 'admin');
+    const users = res.users || res.data || (Array.isArray(res) ? res : []);
+    const total = res.total ?? res.pagination?.total ?? users.length;
+    return { users, total, page: res.pagination?.page || 1, limit: res.pagination?.limit || 50 };
   },
 
   async getUserDetail(id: string): Promise<any> {
@@ -132,7 +135,10 @@ export const adminApi = {
     if (params?.status) query.set('status', params.status);
     if (params?.plan) query.set('plan', params.plan);
     const qs = query.toString() ? `?${query.toString()}` : '';
-    return apiClient(`/admin/subscriptions${qs}`, {}, 'admin');
+    const res: any = await apiClient(`/admin/subscriptions${qs}`, {}, 'admin');
+    const subscriptions = res.subscriptions || res.data || (Array.isArray(res) ? res : []);
+    const total = res.total ?? res.pagination?.total ?? subscriptions.length;
+    return { subscriptions, total };
   },
 
   async cancelSubscription(id: string, reason: string): Promise<{ success: boolean }> {
@@ -170,12 +176,60 @@ export const adminApi = {
     }, 'admin');
   },
 
+  async changeUserPlan(userId: string, targetPlan: string, reason?: string): Promise<{ success: boolean }> {
+    return apiClient(`/admin/users/${userId}/change-plan`, {
+      method: 'POST',
+      body: JSON.stringify({ targetPlan, planId: targetPlan, reason: reason || 'Admin plan change' }),
+    }, 'admin');
+  },
+
   async getPayments(): Promise<{ payments: any[]; total: number }> {
-    return apiClient('/admin/payments', {}, 'admin');
+    const res: any = await apiClient('/admin/payments', {}, 'admin');
+    const payments = res.payments || res.data || (Array.isArray(res) ? res : []);
+    const total = res.total ?? res.pagination?.total ?? payments.length;
+    return { payments, total };
   },
 
   async getInvoices(): Promise<{ invoices: InvoiceInfo[]; total: number }> {
-    return apiClient('/admin/invoices', {}, 'admin');
+    const res: any = await apiClient('/admin/invoices', {}, 'admin');
+    const invoices = res.invoices || res.data || (Array.isArray(res) ? res : []);
+    const total = res.total ?? res.pagination?.total ?? invoices.length;
+    return { invoices, total };
+  },
+
+  async getInvoice(id: string): Promise<InvoiceInfo> {
+    return apiClient<InvoiceInfo>(`/admin/invoices/${id}`, {}, 'admin');
+  },
+
+  async sendInvoice(id: string, recipientEmail?: string): Promise<{ success: boolean; message: string }> {
+    return apiClient(`/admin/invoices/${id}/send`, {
+      method: 'POST',
+      body: JSON.stringify(recipientEmail ? { recipientEmail } : {}),
+    }, 'admin');
+  },
+
+  async downloadInvoicePdf(id: string, invoiceNumber: string): Promise<void> {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('meetmind_admin_token') : null;
+
+    const response = await fetch(`${apiBase}/admin/invoices/${id}/pdf`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => null);
+      throw new Error(errJson?.message || 'Failed to download invoice PDF');
+    }
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `Invoice-${invoiceNumber || id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
   },
 
   async retryInvoicePayment(id: string): Promise<{ success: boolean }> {
@@ -235,7 +289,10 @@ export const adminApi = {
   },
 
   async getRecordings(): Promise<{ recordings: any[]; total: number }> {
-    return apiClient('/admin/recordings', {}, 'admin');
+    const res: any = await apiClient('/admin/recordings', {}, 'admin');
+    const recordings = res.recordings || res.data || (Array.isArray(res) ? res : []);
+    const total = res.total ?? res.pagination?.total ?? recordings.length;
+    return { recordings, total };
   },
 
   async getUsageAnalytics(): Promise<any> {
@@ -250,10 +307,40 @@ export const adminApi = {
     const query = new URLSearchParams();
     if (params?.limit) query.set('limit', String(params.limit));
     const qs = query.toString() ? `?${query.toString()}` : '';
-    return apiClient(`/admin/audit-logs${qs}`, {}, 'admin');
+    const res: any = await apiClient(`/admin/audit-logs${qs}`, {}, 'admin');
+    const logs = res.logs || res.data || (Array.isArray(res) ? res : []);
+    return { logs };
   },
 
   async getSystemHealth(): Promise<any> {
     return apiClient('/admin/health', {}, 'admin');
+  },
+
+  async getPlatformSettings(): Promise<{ trialDays: number; dailyMinutes: number; allowRegistration: boolean; trialPlanId?: string }> {
+    const res: any = await apiClient('/admin/plans', {}, 'admin');
+    const plans = res.plans || (Array.isArray(res) ? res : []);
+    const trialPlan = plans.find((p: any) => p.code === 'TRIAL');
+    return {
+      trialDays: trialPlan?.trialDays || 30,
+      dailyMinutes: Math.floor((trialPlan?.dailyRecordingLimitSeconds || 1800) / 60),
+      allowRegistration: true,
+      trialPlanId: trialPlan?.id,
+    };
+  },
+
+  async updatePlatformSettings(settings: { trialDays: number; dailyMinutes: number }): Promise<{ success: boolean }> {
+    const res: any = await apiClient('/admin/plans', {}, 'admin');
+    const plans = res.plans || (Array.isArray(res) ? res : []);
+    const trialPlan = plans.find((p: any) => p.code === 'TRIAL');
+    if (trialPlan) {
+      await apiClient(`/admin/plans/${trialPlan.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          trialDays: settings.trialDays,
+          dailyRecordingLimitSeconds: settings.dailyMinutes * 60,
+        }),
+      }, 'admin');
+    }
+    return { success: true };
   },
 };

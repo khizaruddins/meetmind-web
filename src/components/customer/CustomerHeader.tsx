@@ -7,17 +7,16 @@ import { useAuth } from '../../lib/auth-context';
 import { ExternalLink, Sparkles } from 'lucide-react';
 
 export const CustomerHeader: React.FC = () => {
-  const { user } = useAuth();
+  const { user, activePlan, isTrial } = useAuth();
 
-  const planCode = user?.subscriptions?.[0]?.plan?.code || (user?.trial?.status === 'ACTIVE' ? 'TRIAL' : 'TRIAL');
-  const isTrial = planCode === 'TRIAL';
+  const planCode = activePlan || 'TRIAL';
 
   return (
     <header className="h-16 border-b border-white/[0.08] bg-[#09090b]/80 backdrop-blur-md px-6 flex items-center justify-between">
       <div className="flex items-center gap-3">
         <h2 className="text-sm font-semibold text-zinc-200">Customer Portal</h2>
-        <Badge variant={planCode === 'GOLD' ? 'amber' : planCode === 'SILVER' ? 'rose' : 'zinc'}>
-          {planCode} Plan
+        <Badge variant={planCode === 'GOLD' ? 'amber' : planCode === 'SILVER' ? 'rose' : planCode === 'ENTERPRISE' ? 'indigo' : 'zinc'}>
+          {planCode === 'TRIAL' ? 'Free Trial' : `${planCode} Plan`}
         </Badge>
         {isTrial && user?.trial?.expiresAt && (
           <span className="text-[11px] text-zinc-400 font-mono hidden sm:inline">

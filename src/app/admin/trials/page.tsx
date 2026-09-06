@@ -77,7 +77,7 @@ export default function AdminTrialsPage() {
         <div>
           <h1 className="text-2xl font-bold font-heading text-white">Active Trial Management</h1>
           <p className="text-xs text-zinc-400 mt-1">
-            Monitor client evaluation lifecycles, extend trial periods, and reset daily usage limits.
+            Monitor client evaluation lifecycles, extend trial periods, and reset daily usage limits ({users.length} active trials).
           </p>
         </div>
       </div>
@@ -99,17 +99,23 @@ export default function AdminTrialsPage() {
                   <th className="py-2.5 px-3">Client</th>
                   <th className="py-2.5 px-3">Email</th>
                   <th className="py-2.5 px-3">Usage Today</th>
+                  <th className="py-2.5 px-3">Total Usage</th>
                   <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-3">Registered</th>
                   <th className="py-2.5 px-3 text-right">Trial Operations</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-zinc-300">
-                {users.map((u) => (
+                {users.map((u: any) => (
                   <tr key={u.id} className="hover:bg-white/[0.02]">
                     <td className="py-3 px-3 font-semibold text-white">{u.displayName || 'Client'}</td>
                     <td className="py-3 px-3 text-zinc-400 font-mono text-[11px]">{u.email}</td>
-                    <td className="py-3 px-3 font-mono">{Math.round(u.usageTodaySeconds / 60)}m / 30m</td>
+                    <td className="py-3 px-3 font-mono">
+                      {Math.round((u.usageTodaySeconds || 0) / 60)}m / 30m
+                    </td>
+                    <td className="py-3 px-3 font-mono text-zinc-400">
+                      {Math.round((u.totalUsageSeconds || 0) / 60)}m
+                    </td>
                     <td className="py-3 px-3">
                       <Badge variant="amber" size="sm">TRIAL</Badge>
                     </td>

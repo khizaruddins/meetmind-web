@@ -31,13 +31,13 @@ export default function AdminRecordingsPage() {
         <div>
           <h1 className="text-2xl font-bold font-heading text-white">Global Recording Telemetry</h1>
           <p className="text-xs text-zinc-400 mt-1">
-            System-wide meeting capture sessions across all active clients.
+            System-wide meeting capture sessions across all active clients ({recordings.length} sessions recorded).
           </p>
         </div>
 
         <div className="p-2.5 rounded-xl bg-zinc-900 border border-white/10 flex items-center gap-2 text-xs text-zinc-300">
-          <HardDrive className="w-4 h-4 text-rose-400" />
-          <span>Local-First Policy: Raw video/audio files remain on user machines.</span>
+          <HardDrive className="w-4 h-4 text-emerald-400" />
+          <span>Local-First Policy: Raw video/audio files remain securely on user machines.</span>
         </div>
       </div>
 
@@ -62,12 +62,16 @@ export default function AdminRecordingsPage() {
                 {recordings.map((rec) => (
                   <tr key={rec.id} className="hover:bg-white/[0.02]">
                     <td className="py-3 px-3 font-medium text-white">{rec.user?.email || rec.userId}</td>
-                    <td className="py-3 px-3">{rec.title}</td>
-                    <td className="py-3 px-3">{rec.platform}</td>
-                    <td className="py-3 px-3 font-mono">{formatSeconds(rec.durationSeconds)}</td>
+                    <td className="py-3 px-3 font-medium text-zinc-200">{rec.title || 'Meeting Capture Session'}</td>
+                    <td className="py-3 px-3">
+                      <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[11px] text-zinc-300">
+                        {rec.platform || 'General'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 font-mono text-emerald-400">{formatSeconds(rec.durationSeconds)}</td>
                     <td className="py-3 px-3 text-zinc-400">{rec.captureMode || 'Auto'}</td>
                     <td className="py-3 px-3">
-                      <Badge variant={rec.status === 'COMPLETED' ? 'emerald' : 'rose'} size="sm">
+                      <Badge variant={rec.status === 'COMPLETED' ? 'emerald' : rec.status === 'IN_PROGRESS' ? 'amber' : 'rose'} size="sm">
                         {rec.status}
                       </Badge>
                     </td>

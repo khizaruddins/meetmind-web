@@ -1,15 +1,148 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Check, Sparkles, Shield, Clock, ArrowRight } from 'lucide-react';
+import { Check, Sparkles, Shield, Clock, ArrowRight, Building2 } from 'lucide-react';
 import { Card } from '../shared/Card';
 import { Button } from '../shared/Button';
 import { Badge } from '../shared/Badge';
 
+interface PlanItem {
+  id: string;
+  code: string;
+  name: string;
+  description?: string;
+  priceAmount: number;
+  currency: string;
+  billingInterval?: string;
+  trialDays?: number;
+  dailyRecordingLimitSeconds?: number | null;
+}
+
 export const Pricing3DSection: React.FC = () => {
+  const [plans, setPlans] = useState<PlanItem[]>([
+    {
+      id: 'trial',
+      code: 'TRIAL',
+      name: 'Free Trial',
+      description: '30-day evaluation period',
+      priceAmount: 0,
+      currency: 'INR',
+      trialDays: 30,
+      dailyRecordingLimitSeconds: 1800,
+    },
+    {
+      id: 'silver',
+      code: 'SILVER',
+      name: 'Silver Plan',
+      description: 'Unlimited daily local recording',
+      priceAmount: 54900,
+      currency: 'INR',
+    },
+    {
+      id: 'gold',
+      code: 'GOLD',
+      name: 'Gold Plan',
+      description: 'Full Recording + AI Meeting Intelligence',
+      priceAmount: 124900,
+      currency: 'INR',
+    },
+  ]);
+
+  useEffect(() => {
+    fetch('/api/v1/plans')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          const list = data.plans || (Array.isArray(data) ? data : []);
+          if (list.length > 0) {
+            // Sort by price
+            list.sort((a: PlanItem, b: PlanItem) => (a.priceAmount || 0) - (b.priceAmount || 0));
+            setPlans(list);
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const getPlanFeatures = (plan: PlanItem) => {
+    if (plan.code === 'TRIAL') {
+      return [
+        '30 recording minutes per day',
+        'Google Meet auto-recording',
+        'Local MP4 export',
+        'System + Microphone audio capture',
+        'Acoustic Echo Cancellation (AEC)',
+      ];
+    }
+    if (plan.code === 'SILVER') {
+      return [
+        'Unlimited recording time',
+        'Hardware acceleration (NVENC/VAAPI)',
+        'Full screen, window & region capture',
+        'PNG & JPEG screenshot engine',
+        'Crash recovery auto-remuxing',
+        'Desktop session management',
+      ];
+    }
+    if (plan.code === 'GOLD') {
+      return [
+        'Everything in Silver plan',
+        'Automated speech transcription',
+        'AI Meeting Summary & Notes',
+        'Extracted Action Items & Owners',
+        'Key Decisions & Timelines',
+        'Executive Briefing Generation',
+      ];
+    }
+    if (plan.code === 'ENTERPRISE') {
+      return [
+        'Everything in Gold plan',
+        'Dedicated Enterprise account support',
+        'Custom daily recording limits',
+        'Team-wide centralized billing',
+        'Custom SSO & security onboarding',
+        'SLA & priority feature access',
+      ];
+    }
+    return [
+      plan.description || 'Full featured recording tier',
+      'High fidelity audio and video capture',
+      'Unlimited local MP4 remuxing',
+      'Priority customer support',
+    ];
+  };
+
+  const getPlanIcon = (code: string) => {
+    switch (code) {
+      case 'TRIAL':
+        return <Clock className="w-4 h-4 text-zinc-400" />;
+      case 'SILVER':
+        return <Shield className="w-4 h-4 text-rose-400" />;
+      case 'GOLD':
+        return <Sparkles className="w-4 h-4 text-amber-400" />;
+      default:
+        return <Building2 className="w-4 h-4 text-purple-400" />;
+    }
+  };
+
+  const getPlanBorderColor = (code: string) => {
+    switch (code) {
+      case 'TRIAL':
+        return 'border-white/10';
+      case 'SILVER':
+        return 'border-rose-500/30 bg-gradient-to-b from-rose-500/[0.05] to-transparent';
+      case 'GOLD':
+        return 'border-amber-500/40 bg-gradient-to-b from-amber-500/[0.08] to-transparent shadow-2xl shadow-amber-500/10 relative';
+      case 'ENTERPRISE':
+        return 'border-purple-500/40 bg-gradient-to-b from-purple-500/[0.08] to-transparent shadow-2xl shadow-purple-500/10 relative';
+      default:
+        return 'border-white/10';
+    }
+  };
+
   return (
-    <section id="pricing" className="py-24 px-6 max-w-6xl mx-auto">
+    <section id="pricing" className="py-24 px-6 max-w-7xl mx-auto">
       <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
         <Badge variant="amber">Transparent Commercial Plans</Badge>
         <h2 className="text-3xl md:text-4xl font-bold font-heading text-white tracking-tight">
@@ -20,171 +153,105 @@ export const Pricing3DSection: React.FC = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-        {/* Trial Card */}
-        <Card variant="elevated" className="p-8 flex flex-col justify-between border-white/10">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-zinc-300">Free Trial</span>
-              <span className="p-2 rounded-xl bg-zinc-800 text-zinc-400">
-                <Clock className="w-4 h-4" />
-              </span>
-            </div>
-            <div className="space-y-1">
-              <div className="text-3xl font-bold text-white font-heading">₹0</div>
-              <p className="text-xs text-zinc-400">30-day evaluation period</p>
-            </div>
+      <div
+        className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${Math.min(plans.length, 4)} gap-8 items-stretch`}
+      >
+        {plans.map((plan) => {
+          const isGold = plan.code === 'GOLD';
+          const isEnterprise = plan.code === 'ENTERPRISE';
+          const isTrial = plan.code === 'TRIAL';
+          const features = getPlanFeatures(plan);
+          const priceDisplay =
+            plan.priceAmount === 0
+              ? '₹0'
+              : `₹${((plan.priceAmount || 0) / 100).toLocaleString('en-IN')}`;
 
-            <ul className="space-y-3 pt-6 border-t border-white/10 text-xs text-zinc-300">
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>30 recording minutes per day</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Google Meet auto-recording</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Local MP4 export</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>System + Microphone audio capture</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                <span>Acoustic Echo Cancellation (AEC)</span>
-              </li>
-            </ul>
-          </div>
+          return (
+            <Card
+              key={plan.id || plan.code}
+              variant="elevated"
+              className={`p-8 flex flex-col justify-between ${getPlanBorderColor(plan.code)}`}
+            >
+              {isGold && (
+                <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-black text-[10px] font-bold uppercase tracking-wider shadow">
+                  Most Popular
+                </div>
+              )}
+              {isEnterprise && (
+                <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider shadow">
+                  Enterprise
+                </div>
+              )}
 
-          <div className="pt-8">
-            <Link href="/register" className="w-full block">
-              <Button variant="outline" size="md" className="w-full">
-                <span>Start 30-Day Trial</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-        </Card>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`text-sm font-semibold ${
+                      isGold
+                        ? 'text-amber-300'
+                        : isEnterprise
+                        ? 'text-purple-300'
+                        : plan.code === 'SILVER'
+                        ? 'text-rose-300'
+                        : 'text-zinc-300'
+                    }`}
+                  >
+                    {plan.name}
+                  </span>
+                  <span className="p-2 rounded-xl bg-zinc-800/80">{getPlanIcon(plan.code)}</span>
+                </div>
 
-        {/* Silver Plan Card */}
-        <Card variant="elevated" className="p-8 flex flex-col justify-between border-rose-500/30 bg-gradient-to-b from-rose-500/[0.05] to-transparent">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-rose-300">Silver Plan</span>
-              <span className="p-2 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-400">
-                <Shield className="w-4 h-4" />
-              </span>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-white font-heading">₹549</span>
-                <span className="text-xs text-zinc-400">/ month</span>
+                <div className="space-y-1">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold text-white font-heading">{priceDisplay}</span>
+                    {!isTrial && <span className="text-xs text-zinc-400">/ month</span>}
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    {plan.description || (isTrial ? '30-day evaluation period' : 'Commercial monthly subscription')}
+                  </p>
+                </div>
+
+                <ul className="space-y-3 pt-6 border-t border-white/10 text-xs text-zinc-300">
+                  {features.map((feat, idx) => (
+                    <li key={idx} className="flex items-center gap-2">
+                      <Check
+                        className={`w-4 h-4 flex-shrink-0 ${
+                          isGold
+                            ? 'text-amber-400'
+                            : isEnterprise
+                            ? 'text-purple-400'
+                            : plan.code === 'SILVER'
+                            ? 'text-rose-400'
+                            : 'text-emerald-400'
+                        }`}
+                      />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <p className="text-xs text-zinc-400">Unlimited daily local recording</p>
-            </div>
 
-            <ul className="space-y-3 pt-6 border-t border-white/10 text-xs text-zinc-300">
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                <strong className="text-white">Unlimited recording time</strong>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                <span>Hardware acceleration (NVENC/VAAPI)</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                <span>Full screen, window & region capture</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                <span>PNG & JPEG screenshot engine</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                <span>Crash recovery auto-remuxing</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-rose-400 flex-shrink-0" />
-                <span>Desktop session management</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="pt-8">
-            <Link href="/register" className="w-full block">
-              <Button variant="primary" size="md" className="w-full shadow-rose-500/20">
-                <span>Choose Silver</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-        </Card>
-
-        {/* Gold Plan Card (Visually elevated with metallic gold border) */}
-        <Card variant="elevated" className="p-8 flex flex-col justify-between border-amber-500/40 bg-gradient-to-b from-amber-500/[0.08] to-transparent relative shadow-2xl shadow-amber-500/10">
-          <div className="absolute -top-3 right-6 px-3 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 text-black text-[10px] font-bold uppercase tracking-wider shadow">
-            Most Powerful
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-amber-300">Gold Plan</span>
-              <span className="p-2 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400">
-                <Sparkles className="w-4 h-4" />
-              </span>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-white font-heading">₹1,249</span>
-                <span className="text-xs text-zinc-400">/ month</span>
+              <div className="pt-8">
+                <Link href="/register" className="w-full block">
+                  <Button
+                    variant={isGold ? 'primary' : isEnterprise ? 'primary' : 'outline'}
+                    size="md"
+                    className={`w-full ${
+                      isGold
+                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-semibold shadow-amber-500/20'
+                        : isEnterprise
+                        ? 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-semibold shadow-purple-500/20'
+                        : ''
+                    }`}
+                  >
+                    <span>{isTrial ? 'Start 30-Day Trial' : `Choose ${plan.name}`}</span>
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </Button>
+                </Link>
               </div>
-              <p className="text-xs text-zinc-400">Full Recording + AI Meeting Intelligence</p>
-            </div>
-
-            <ul className="space-y-3 pt-6 border-t border-white/10 text-xs text-zinc-300">
-              <li className="flex items-center gap-2 text-amber-200">
-                <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>Everything in Silver plan</span>
-              </li>
-              <li className="flex items-center gap-2 text-amber-200">
-                <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <strong>Automated speech transcription</strong>
-              </li>
-              <li className="flex items-center gap-2 text-amber-200">
-                <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>AI Meeting Summary & Notes</span>
-              </li>
-              <li className="flex items-center gap-2 text-amber-200">
-                <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>Extracted Action Items & Owners</span>
-              </li>
-              <li className="flex items-center gap-2 text-amber-200">
-                <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>Key Decisions & Timelines</span>
-              </li>
-              <li className="flex items-center gap-2 text-amber-200">
-                <Check className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>Executive Briefing Generation</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="pt-8">
-            <Link href="/register" className="w-full block">
-              <Button
-                size="md"
-                className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-black font-semibold shadow-amber-500/20"
-              >
-                <span>Get Gold Intelligence</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
-        </Card>
+            </Card>
+          );
+        })}
       </div>
     </section>
   );

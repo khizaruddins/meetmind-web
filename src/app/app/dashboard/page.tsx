@@ -48,7 +48,12 @@ export default function CustomerDashboardPage() {
     return `${mins}m ${remainingSec}s`;
   };
 
-  const planCode = data?.plan?.code || data?.subscription?.planCode || user?.subscriptions?.[0]?.plan?.code || (user?.trial?.status === 'ACTIVE' ? 'TRIAL' : 'TRIAL');
+  const activeSub = user?.subscriptions?.find((s: any) => s.status === 'ACTIVE');
+  const planCode =
+    (typeof data?.plan === 'string' ? data.plan : data?.plan?.code)?.toUpperCase() ||
+    data?.subscription?.planCode?.toUpperCase() ||
+    activeSub?.plan?.code?.toUpperCase() ||
+    'TRIAL';
   const isTrial = planCode === 'TRIAL';
 
   if (loading) {

@@ -51,8 +51,8 @@ export default function AdminPlansPage() {
     name: '',
     description: '',
     billingInterval: 'MONTHLY',
-    priceAmount: 1900,
-    currency: 'USD',
+    priceAmount: 189900,
+    currency: 'INR',
     trialDays: 0,
     dailyRecordingLimitSeconds: 0,
     active: true,
@@ -82,8 +82,8 @@ export default function AdminPlansPage() {
       name: '',
       description: '',
       billingInterval: 'MONTHLY',
-      priceAmount: 1900,
-      currency: 'USD',
+      priceAmount: 189900,
+      currency: 'INR',
       trialDays: 0,
       dailyRecordingLimitSeconds: 0,
       active: true,
@@ -101,7 +101,7 @@ export default function AdminPlansPage() {
       description: plan.description || '',
       billingInterval: plan.billingInterval || 'MONTHLY',
       priceAmount: plan.priceAmount || 0,
-      currency: plan.currency || 'USD',
+      currency: plan.currency || 'INR',
       trialDays: plan.trialDays || 0,
       dailyRecordingLimitSeconds: plan.dailyRecordingLimitSeconds || 0,
       active: plan.active,
@@ -286,7 +286,7 @@ export default function AdminPlansPage() {
 
                   <div className="pt-2 border-t border-white/5 flex items-baseline gap-1">
                     <span className="text-2xl font-bold text-white font-mono">
-                      ${((plan.priceAmount || 0) / 100).toFixed(2)}
+                      ₹{((plan.priceAmount || 0) / 100).toLocaleString('en-IN')}
                     </span>
                     <span className="text-xs text-zinc-400">/{plan.billingInterval.toLowerCase()}</span>
                   </div>
@@ -401,7 +401,7 @@ export default function AdminPlansPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <label className="text-zinc-300 font-medium">Price (Cents)</label>
+                  <label className="text-zinc-300 font-medium">Price (Paise)</label>
                   <input
                     type="number"
                     min={0}
@@ -412,7 +412,7 @@ export default function AdminPlansPage() {
                     className="w-full px-3 py-2 bg-zinc-900 border border-white/10 rounded-xl text-white font-mono"
                   />
                   <span className="text-[10px] text-zinc-500">
-                    ${(formData.priceAmount / 100).toFixed(2)} {formData.currency}
+                    ₹{((formData.priceAmount || 0) / 100).toLocaleString('en-IN')} {formData.currency}
                   </span>
                 </div>
 

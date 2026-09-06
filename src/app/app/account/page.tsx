@@ -212,12 +212,22 @@ export default function CustomerAccountPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Link href="/app/subscription">
-            <Badge variant="rose" size="md" className="cursor-pointer hover:opacity-80">
-              <Sparkles className="w-3 h-3 mr-1" />
-              {user?.subscriptions?.[0]?.plan?.code || 'TRIAL'} Plan
-            </Badge>
-          </Link>
+          {(() => {
+            const activeSub = user?.subscriptions?.find((s: any) => s.status === 'ACTIVE');
+            const code = activeSub?.plan?.code?.toUpperCase();
+            return (
+              <Link href="/app/subscription">
+                <Badge
+                  variant={code === 'GOLD' ? 'amber' : code === 'SILVER' ? 'rose' : code === 'ENTERPRISE' ? 'indigo' : 'zinc'}
+                  size="md"
+                  className="cursor-pointer hover:opacity-80"
+                >
+                  <Sparkles className="w-3 h-3 mr-1" />
+                  {activeSub?.plan?.name || (code ? `${code} Plan` : 'Free Trial')}
+                </Badge>
+              </Link>
+            );
+          })()}
         </div>
       </Card>
 

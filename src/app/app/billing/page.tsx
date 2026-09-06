@@ -9,6 +9,7 @@ import { Card } from '../../../components/shared/Card';
 import { Badge } from '../../../components/shared/Badge';
 import { Button } from '../../../components/shared/Button';
 import { LoadingSkeleton } from '../../../components/shared/LoadingSkeleton';
+import { InvoiceViewerModal } from '../../../components/shared/InvoiceViewerModal';
 import { useAuth } from '../../../lib/auth-context';
 
 export default function CustomerBillingPage() {
@@ -16,6 +17,7 @@ export default function CustomerBillingPage() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodInfo[]>([]);
   const [invoices, setInvoices] = useState<InvoiceInfo[]>([]);
   const [sub, setSub] = useState<SubscriptionInfo | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -156,8 +158,12 @@ export default function CustomerBillingPage() {
               </thead>
               <tbody className="divide-y divide-white/5 text-zinc-300">
                 {invoices.slice(0, 5).map((inv) => (
-                  <tr key={inv.id} className="hover:bg-white/[0.02]">
-                    <td className="py-3 px-3 font-mono font-medium text-white">{inv.invoiceNumber}</td>
+                  <tr
+                    key={inv.id}
+                    onClick={() => setSelectedInvoice(inv)}
+                    className="hover:bg-white/[0.04] cursor-pointer transition-colors"
+                  >
+                    <td className="py-3 px-3 font-mono font-medium text-rose-400 hover:underline">{inv.invoiceNumber}</td>
                     <td className="py-3 px-3 text-zinc-400">
                       {new Date(inv.createdAt).toLocaleDateString()}
                     </td>
@@ -178,6 +184,17 @@ export default function CustomerBillingPage() {
           </div>
         )}
       </Card>
+
+      {/* Invoice Modal */}
+      {selectedInvoice && (
+        <InvoiceViewerModal
+          invoice={selectedInvoice}
+          isAdmin={false}
+          onClose={() => setSelectedInvoice(null)}
+          onDownload={(inv) => customerApi.downloadInvoicePdf(inv.id, inv.invoiceNumber)}
+          onSend={(inv, email) => customerApi.sendInvoice(inv.id, email)}
+        />
+      )}
     </div>
   );
 }

@@ -23,7 +23,7 @@ interface AdminAuthContextType {
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [admin, setAdmin] = useState<AdminAuthResponse['admin'] | null>(() => getAdminUser());
+  const [admin, setAdmin] = useState<AdminAuthResponse['admin'] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
@@ -57,6 +57,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   useEffect(() => {
+    const cached = getAdminUser();
+    if (cached) setAdmin(cached);
     refreshAdmin();
   }, []);
 

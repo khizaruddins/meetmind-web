@@ -68,10 +68,20 @@ export interface RecordingMetadata {
   createdAt: string;
 }
 
+export interface InvoiceTaxDetails {
+  taxableAmount: number;
+  totalTax: number;
+  cgst: number;
+  sgst: number;
+  rate: number;
+}
+
 export interface InvoiceInfo {
   id: string;
   invoiceNumber: string;
   amount: number;
+  amountPaid?: number;
+  amountDue?: number;
   currency: string;
   status: 'PAID' | 'OPEN' | 'VOID' | 'UNCOLLECTIBLE';
   createdAt: string;
@@ -79,7 +89,33 @@ export interface InvoiceInfo {
   periodStart: string;
   periodEnd: string;
   pdfUrl?: string;
+  invoiceUrl?: string;
+  invoicePdfUrl?: string;
   planName?: string;
+  taxDetails?: InvoiceTaxDetails;
+  user?: {
+    id: string;
+    email: string;
+    displayName?: string;
+    firstName?: string;
+    lastName?: string;
+    profile?: {
+      country?: string;
+      timezone?: string;
+    };
+  };
+  subscription?: {
+    id: string;
+    status: string;
+    provider?: string;
+    plan?: {
+      code: string;
+      name: string;
+      description?: string;
+      priceAmount: number;
+      currency: string;
+    };
+  };
 }
 
 export interface PaymentMethodInfo {

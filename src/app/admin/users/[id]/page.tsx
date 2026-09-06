@@ -35,6 +35,14 @@ export default function AdminUserDetailPage() {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMsg, setActionMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
+  // Plan Mutation Modal State
+  const [availablePlans, setAvailablePlans] = useState<any[]>([]);
+  const [planModalOpen, setPlanModalOpen] = useState(false);
+  const [targetPlan, setTargetPlan] = useState('TRIAL');
+  const [planReason, setPlanReason] = useState('');
+  const [planChangeLoading, setPlanChangeLoading] = useState(false);
+  const [planChangeError, setPlanChangeError] = useState<string | null>(null);
+
   const loadUserDetail = () => {
     if (!userId) return;
     setLoading(true);
@@ -47,7 +55,56 @@ export default function AdminUserDetailPage() {
 
   useEffect(() => {
     loadUserDetail();
+    adminApi
+      .getPlans()
+      .then((res: any) => {
+        const list = res.plans || res.data || (Array.isArray(res) ? res : []);
+        const hasTrial = list.some((p: any) => p.code === 'TRIAL');
+        const fullList = hasTrial
+          ? list
+          : [
+              { id: 'trial', code: 'TRIAL', name: 'Free Trial', priceAmount: 0 },
+              ...list,
+            ];
+        fullList.sort((a: any, b: any) => (a.priceAmount || 0) - (b.priceAmount || 0));
+        setAvailablePlans(fullList);
+      })
+      .catch(console.error);
   }, [userId]);
+
+  const openChangePlanModal = (defaultPlan?: string) => {
+    setPlanChangeError(null);
+    setPlanReason('');
+    if (defaultPlan) {
+      setTargetPlan(defaultPlan);
+    } else {
+      const activeSub = data?.user?.subscriptions?.find((s: any) => s.status === 'ACTIVE');
+      const currentCode = activeSub?.plan?.code || (data?.user?.trial?.status === 'ACTIVE' ? 'TRIAL' : 'TRIAL');
+      const other = availablePlans.find((p) => p.code !== currentCode);
+      setTargetPlan(other ? other.code : (availablePlans[0]?.code || 'TRIAL'));
+    }
+    setPlanModalOpen(true);
+  };
+
+  const handlePlanSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!planReason.trim()) {
+      setPlanChangeError('A reason is mandatory for administrative plan mutations.');
+      return;
+    }
+    setPlanChangeLoading(true);
+    setPlanChangeError(null);
+    try {
+      await adminApi.changeUserPlan(userId as string, targetPlan, planReason.trim());
+      setActionMsg({ text: `User plan successfully updated to ${targetPlan}.`, type: 'success' });
+      setPlanModalOpen(false);
+      loadUserDetail();
+    } catch (err: any) {
+      setPlanChangeError(err.message || 'Failed to update plan.');
+    } finally {
+      setPlanChangeLoading(false);
+    }
+  };
 
   // Admin Actions
   const handleExtendTrial = async (days: number) => {
@@ -157,7 +214,8 @@ export default function AdminUserDetailPage() {
 
   const u = data.user;
   const trial = u.trial;
-  const sub = u.subscriptions?.[0];
+  const activeSub = u.subscriptions?.find((s: any) => s.status === 'ACTIVE');
+  const sub = activeSub || u.subscriptions?.[0];
   const quota = data.usage;
   const devices = data.devices || [];
   const recordings = data.recordings || [];
@@ -182,6 +240,15 @@ export default function AdminUserDetailPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => openChangePlanModal()}
+            className="text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+          >
+            <Sparkles className="w-3.5 h-3.5 mr-1" />
+            <span>Change Plan</span>
+          </Button>
           {!u.emailVerified && (
             <Button size="sm" variant="outline" onClick={handleVerifyEmail} isLoading={actionLoading}>
               <MailCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -251,25 +318,70 @@ export default function AdminUserDetailPage() {
         <Card variant="elevated" className="p-6 border-white/10 space-y-3 bg-[#10121a]">
           <h3 className="text-sm font-bold text-white flex items-center gap-2 pb-2 border-b border-white/10">
             <CreditCard className="w-4 h-4 text-rose-400" />
-            <span>Subscription Status</span>
+            <span>Subscriptions ({u.subscriptions?.length || 0})</span>
           </h3>
           <div className="space-y-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-zinc-400">Current Plan:</span>
-              <Badge variant={sub?.plan?.code === 'GOLD' ? 'amber' : sub?.plan?.code === 'SILVER' ? 'rose' : 'zinc'} size="sm">
-                {sub?.plan?.code || 'TRIAL'}
+              <span className="text-zinc-400">Primary Plan:</span>
+              <Badge
+                variant={
+                  activeSub?.plan?.code === 'GOLD'
+                    ? 'amber'
+                    : activeSub?.plan?.code === 'ENTERPRISE'
+                    ? 'indigo'
+                    : activeSub?.plan?.code === 'SILVER'
+                    ? 'rose'
+                    : trial?.status === 'ACTIVE'
+                    ? 'amber'
+                    : 'zinc'
+                }
+                size="sm"
+              >
+                {activeSub?.plan?.name || activeSub?.plan?.code || (trial?.status === 'ACTIVE' ? 'Free Trial' : 'None')}
               </Badge>
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-400">State:</span>
-              <span className="text-emerald-400 font-semibold">{sub?.status || 'TRIAL'}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-zinc-400">Next Billing:</span>
-              <span className="text-zinc-200">
-                {sub?.currentPeriodEnd ? new Date(sub.currentPeriodEnd).toLocaleDateString() : 'N/A'}
+              <span
+                className={`font-semibold ${
+                  activeSub
+                    ? 'text-emerald-400'
+                    : trial?.status === 'ACTIVE'
+                    ? 'text-amber-400'
+                    : 'text-zinc-400'
+                }`}
+              >
+                {activeSub ? activeSub.status : trial?.status === 'ACTIVE' ? 'TRIAL' : sub?.status || 'INACTIVE'}
               </span>
             </div>
+            <div className="flex justify-between">
+              <span className="text-zinc-400">Pricing:</span>
+              <span className="text-zinc-200 font-mono">
+                {activeSub?.plan ? `₹${((activeSub.plan.priceAmount || 0) / 100).toLocaleString('en-IN')}/mo` : 'Free Trial'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-zinc-400">Next Renewal:</span>
+              <span className="text-zinc-200">
+                {activeSub?.currentPeriodEnd
+                  ? new Date(activeSub.currentPeriodEnd).toLocaleDateString()
+                  : trial?.expiresAt
+                  ? `Trial (${new Date(trial.expiresAt).toLocaleDateString()})`
+                  : 'N/A'}
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-wrap gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => openChangePlanModal(sub?.plan?.code)}
+              className="text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+            >
+              <Sparkles className="w-3.5 h-3.5 mr-1" />
+              <span>Change / Assign Plan</span>
+            </Button>
           </div>
         </Card>
 
@@ -277,17 +389,25 @@ export default function AdminUserDetailPage() {
         <Card variant="elevated" className="p-6 border-white/10 space-y-3 bg-[#10121a]">
           <h3 className="text-sm font-bold text-white flex items-center gap-2 pb-2 border-b border-white/10">
             <Clock className="w-4 h-4 text-sky-400" />
-            <span>Trial Operational Actions</span>
+            <span>Trial Evaluation State</span>
           </h3>
           <div className="space-y-2 text-xs">
             <div className="flex justify-between">
               <span className="text-zinc-400">Trial State:</span>
-              <span className="font-semibold text-zinc-200">{trial?.status || 'N/A'}</span>
+              <Badge variant={trial?.status === 'ACTIVE' ? 'amber' : 'zinc'} size="sm">
+                {trial?.status || 'NONE'}
+              </Badge>
             </div>
             <div className="flex justify-between">
               <span className="text-zinc-400">Expires:</span>
               <span className="text-zinc-200">
-                {trial?.expiresAt ? new Date(trial.expiresAt).toLocaleDateString() : 'N/A'}
+                {trial?.endsAt ? new Date(trial.endsAt).toLocaleDateString() : (trial?.expiresAt ? new Date(trial.expiresAt).toLocaleDateString() : 'N/A')}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-zinc-400">Daily Quota:</span>
+              <span className="text-zinc-200 font-mono">
+                {Math.round((data.usageTodaySeconds || quota?.secondsRecordedToday || 0) / 60)}m / 30m
               </span>
             </div>
           </div>
@@ -305,6 +425,83 @@ export default function AdminUserDetailPage() {
           </div>
         </Card>
       </div>
+
+      {/* Multi Subscriptions Table */}
+      {u.subscriptions && u.subscriptions.length > 0 && (
+        <Card variant="elevated" className="p-6 border-white/10 space-y-4 bg-[#10121a]">
+          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-rose-400" />
+            <span>Subscription History & Active Tiers ({u.subscriptions.length})</span>
+          </h3>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-white/5 text-zinc-400">
+                  <th className="py-2.5 px-3">Plan</th>
+                  <th className="py-2.5 px-3">Status</th>
+                  <th className="py-2.5 px-3">Price</th>
+                  <th className="py-2.5 px-3">Period Start</th>
+                  <th className="py-2.5 px-3">Period End</th>
+                  <th className="py-2.5 px-3">Auto-Renew</th>
+                  <th className="py-2.5 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5 text-zinc-300">
+                {u.subscriptions.map((s: any) => (
+                  <tr key={s.id}>
+                    <td className="py-3 px-3 font-semibold text-white">
+                      <Badge
+                        variant={
+                          s.plan?.code === 'GOLD'
+                            ? 'amber'
+                            : s.plan?.code === 'ENTERPRISE'
+                            ? 'indigo'
+                            : 'rose'
+                        }
+                        size="sm"
+                      >
+                        {s.plan?.name || s.plan?.code || 'Plan'}
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-3">
+                      <span className={`font-semibold ${s.status === 'ACTIVE' ? 'text-emerald-400' : 'text-zinc-400'}`}>
+                        {s.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 font-mono">
+                      ₹{((s.plan?.priceAmount || 0) / 100).toLocaleString('en-IN')}/mo
+                    </td>
+                    <td className="py-3 px-3 text-zinc-400">
+                      {new Date(s.currentPeriodStart).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-3 text-zinc-400">
+                      {new Date(s.currentPeriodEnd).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-3">
+                      {s.cancelAtPeriodEnd ? (
+                        <span className="text-rose-400">Cancels at period end</span>
+                      ) : (
+                        <span className="text-emerald-400">Yes (Active)</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openChangePlanModal(s.plan?.code)}
+                        className="text-[11px] h-7 px-2 text-amber-400 hover:text-amber-300 border-amber-500/30"
+                      >
+                        Change Plan
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
 
       {/* Active Sessions Table */}
       <Card variant="elevated" className="p-6 border-white/10 space-y-4 bg-[#10121a]">
@@ -395,6 +592,84 @@ export default function AdminUserDetailPage() {
           <p className="text-xs text-zinc-500 py-2">No recording sessions registered for this customer.</p>
         )}
       </Card>
+
+      {/* Change Plan Modal */}
+      {planModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#18181b] border border-white/10 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in-95">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-400" />
+                <span>Change User Subscription Tier</span>
+              </h3>
+              <p className="text-xs text-zinc-400 mt-0.5">
+                Target User: <span className="text-white font-medium">{u.email}</span>
+              </p>
+            </div>
+
+            {planChangeError && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+                {planChangeError}
+              </div>
+            )}
+
+            <form onSubmit={handlePlanSubmit} className="space-y-4 text-xs">
+              <div className="space-y-1.5">
+                <label className="text-zinc-300 font-medium">Select Target Plan / Tier</label>
+                <select
+                  value={targetPlan}
+                  onChange={(e) => setTargetPlan(e.target.value)}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-white/10 rounded-xl text-white focus:outline-none focus:border-amber-500"
+                >
+                  {availablePlans.map((p) => (
+                    <option key={p.code} value={p.code}>
+                      {p.name || p.code} ({p.code === 'TRIAL' ? 'Free Trial evaluation' : `₹${((p.priceAmount || 0) / 100).toLocaleString('en-IN')}/mo`})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-zinc-500">
+                  Selecting <span className="text-amber-400 font-medium">Free Trial</span> will reset or reactivate the user&apos;s trial evaluation period and deactivate commercial subscription billing.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-zinc-300 font-medium">
+                  Administrative Reason <span className="text-rose-400">*</span>
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={planReason}
+                  onChange={(e) => setPlanReason(e.target.value)}
+                  placeholder="Enter reason for audit record (e.g. Switched back to Trial per user request, Granted complimentary Gold plan)"
+                  className="w-full px-3 py-2 bg-zinc-900 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setPlanModalOpen(false)}
+                  disabled={planChangeLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  variant="primary"
+                  isLoading={planChangeLoading}
+                  className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                >
+                  Apply Plan Change
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

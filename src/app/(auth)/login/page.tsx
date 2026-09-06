@@ -19,6 +19,8 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -60,9 +62,6 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
-
-  const [resendStatus, setResendStatus] = useState<string | null>(null);
-  const [resending, setResending] = useState(false);
 
   const handleResend = async () => {
     if (!email.trim()) return;

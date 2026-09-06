@@ -141,8 +141,11 @@ export const customerApi = {
     }
   },
 
-  async cancelSubscription(): Promise<{ success: boolean; subscription: SubscriptionInfo }> {
-    return apiClient('/subscription/cancel', { method: 'POST' }, 'customer');
+  async cancelSubscription(reason?: string, atPeriodEnd: boolean = true): Promise<{ success: boolean; subscription: SubscriptionInfo }> {
+    return apiClient('/subscription/cancel', {
+      method: 'POST',
+      body: JSON.stringify({ reason, atPeriodEnd }),
+    }, 'customer');
   },
 
   async resumeSubscription(): Promise<{ success: boolean; subscription: SubscriptionInfo }> {
@@ -151,6 +154,41 @@ export const customerApi = {
 
   async getInvoices(): Promise<{ invoices: InvoiceInfo[] }> {
     return apiClient('/invoices', {}, 'customer');
+  },
+
+  async getInvoice(id: string): Promise<InvoiceInfo> {
+    return apiClient<InvoiceInfo>(`/invoices/${id}`, {}, 'customer');
+  },
+
+  async downloadInvoicePdf(id: string, invoiceNumber: string): Promise<void> {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/v1';
+    const token = typeof window !== 'undefined' ? localStorage.getItem('meetmind_customer_token') : null;
+
+    const response = await fetch(`${apiBase}/invoices/${id}/pdf`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => null);
+      throw new Error(errJson?.message || 'Failed to download invoice PDF');
+    }
+
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `Invoice-${invoiceNumber || id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => window.URL.revokeObjectURL(blobUrl), 1000);
+  },
+
+  async sendInvoice(id: string, recipientEmail?: string): Promise<{ success: boolean; message: string }> {
+    return apiClient(`/invoices/${id}/send`, {
+      method: 'POST',
+      body: JSON.stringify(recipientEmail ? { recipientEmail } : {}),
+    }, 'customer');
   },
 
   async getPaymentMethods(): Promise<{ paymentMethods: PaymentMethodInfo[] }> {

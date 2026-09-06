@@ -10,6 +10,7 @@ import { CreditCard, Filter } from 'lucide-react';
 
 export default function AdminSubscriptionsPage() {
   const [subscriptions, setSubscriptions] = useState<any[]>([]);
+  const [availablePlans, setAvailablePlans] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [planFilter, setPlanFilter] = useState('');
@@ -31,6 +32,13 @@ export default function AdminSubscriptionsPage() {
   };
 
   useEffect(() => {
+    adminApi.getPlans().then((res: any) => {
+      const plans = res.plans || res.data || (Array.isArray(res) ? res : []);
+      setAvailablePlans(plans);
+    }).catch(console.error);
+  }, []);
+
+  useEffect(() => {
     loadSubscriptions();
   }, [planFilter, statusFilter]);
 
@@ -38,7 +46,7 @@ export default function AdminSubscriptionsPage() {
   const [selectedSub, setSelectedSub] = useState<any>(null);
   const [modalAction, setModalAction] = useState<'changePlan' | 'cancel' | 'resume' | 'extend' | 'overrideStatus' | null>(null);
   const [reason, setReason] = useState('');
-  const [targetPlan, setTargetPlan] = useState('GOLD');
+  const [targetPlan, setTargetPlan] = useState('');
   const [extendDays, setExtendDays] = useState(30);
   const [newStatus, setNewStatus] = useState('ACTIVE');
   const [actionLoading, setActionLoading] = useState(false);
@@ -50,7 +58,8 @@ export default function AdminSubscriptionsPage() {
     setReason('');
     setActionError(null);
     if (action === 'changePlan') {
-      setTargetPlan(sub.plan?.code === 'GOLD' ? 'SILVER' : 'GOLD');
+      const otherPlan = availablePlans.find((p) => p.code !== sub.plan?.code && p.code !== 'TRIAL');
+      setTargetPlan(otherPlan ? otherPlan.code : 'GOLD');
     }
     if (action === 'overrideStatus') {
       setNewStatus(sub.status || 'ACTIVE');
@@ -106,8 +115,11 @@ export default function AdminSubscriptionsPage() {
             className="px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-xl text-xs text-white"
           >
             <option value="">All Plans</option>
-            <option value="SILVER">Silver</option>
-            <option value="GOLD">Gold</option>
+            {availablePlans.map((p) => (
+              <option key={p.code} value={p.code}>
+                {p.name || p.code}
+              </option>
+            ))}
           </select>
 
           <select
@@ -148,7 +160,16 @@ export default function AdminSubscriptionsPage() {
                       {s.user?.email || s.userId}
                     </td>
                     <td className="py-3 px-3">
-                      <Badge variant={s.plan?.code === 'GOLD' ? 'amber' : 'rose'} size="sm">
+                      <Badge
+                        variant={
+                          s.plan?.code === 'GOLD'
+                            ? 'amber'
+                            : s.plan?.code === 'ENTERPRISE'
+                            ? 'indigo'
+                            : 'rose'
+                        }
+                        size="sm"
+                      >
                         {s.plan?.name || s.plan?.code}
                       </Badge>
                     </td>
@@ -165,7 +186,9 @@ export default function AdminSubscriptionsPage() {
                         {s.status}
                       </span>
                     </td>
-                    <td className="py-3 px-3 font-mono">${((s.plan?.priceAmount || 0) / 100).toFixed(2)}/mo</td>
+                    <td className="py-3 px-3 font-mono">
+                      ₹{((s.plan?.priceAmount || 0) / 100).toLocaleString('en-IN')}/mo
+                    </td>
                     <td className="py-3 px-3 text-zinc-400">
                       {new Date(s.currentPeriodStart).toLocaleDateString()}
                     </td>
@@ -268,8 +291,11 @@ export default function AdminSubscriptionsPage() {
                     onChange={(e) => setTargetPlan(e.target.value)}
                     className="w-full px-3 py-2 bg-zinc-900 border border-white/10 rounded-xl text-white"
                   >
-                    <option value="SILVER">SILVER ($19/mo)</option>
-                    <option value="GOLD">GOLD ($39/mo)</option>
+                    {availablePlans.map((p) => (
+                      <option key={p.code} value={p.code}>
+                        {p.name || p.code} ({p.code === 'TRIAL' ? 'Free Trial' : `₹${((p.priceAmount || 0) / 100).toLocaleString('en-IN')}/mo`})
+                      </option>
+                    ))}
                   </select>
                 </div>
               )}

@@ -35,25 +35,27 @@ export default function AdminUsageAnalyticsPage() {
         <Card variant="elevated" className="p-6 border-white/10 space-y-2 bg-[#10121a]">
           <span className="text-xs text-zinc-400 font-semibold">Average Meeting Duration</span>
           <div className="text-3xl font-bold text-white font-heading">
-            {data?.averageDurationMinutes || '38.4'} mins
+            {data?.averageDurationMinutes ?? 0} mins
           </div>
-          <p className="text-[11px] text-zinc-500">Based on Google Meet session lengths</p>
+          <p className="text-[11px] text-zinc-500">Computed live from {data?.totalRecordings ?? 0} meeting recordings</p>
         </Card>
 
         {/* Metric 2 */}
         <Card variant="elevated" className="p-6 border-white/10 space-y-2 bg-[#10121a]">
           <span className="text-xs text-zinc-400 font-semibold">Total Minutes Recorded</span>
           <div className="text-3xl font-bold text-white font-heading">
-            {data?.totalMinutes || '4,280'}
+            {data?.totalMinutes ?? 0} mins
           </div>
-          <p className="text-[11px] text-zinc-500">Across all active client machines</p>
+          <p className="text-[11px] text-zinc-500">Across all registered user machines in DB</p>
         </Card>
 
         {/* Metric 3 */}
         <Card variant="elevated" className="p-6 border-white/10 space-y-2 bg-[#10121a]">
           <span className="text-xs text-zinc-400 font-semibold">Automatic Detection Rate</span>
-          <div className="text-3xl font-bold text-emerald-400 font-heading">94.2%</div>
-          <p className="text-[11px] text-zinc-500">Google Meet extension vs manual record</p>
+          <div className="text-3xl font-bold text-emerald-400 font-heading">
+            {data?.autoDetectionRatePercent ?? 0}%
+          </div>
+          <p className="text-[11px] text-zinc-500">Automated extension triggers vs manual starts</p>
         </Card>
       </div>
 
@@ -62,39 +64,38 @@ export default function AdminUsageAnalyticsPage() {
         <Card variant="elevated" className="p-6 border-white/10 space-y-4 bg-[#10121a]">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
             <Monitor className="w-4 h-4 text-sky-400" />
-            <span>Operating System Breakdown</span>
+            <span>Operating System Breakdown (Windows, Linux, macOS)</span>
           </h3>
 
-          <div className="space-y-3 text-xs">
-            <div className="space-y-1">
-              <div className="flex justify-between text-zinc-300">
-                <span>Windows 10 / 11 (WASAPI + WGC)</span>
-                <span className="font-semibold text-white">52%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
-                <div className="h-full bg-sky-500 rounded-full" style={{ width: '52%' }} />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-zinc-300">
-                <span>macOS (ScreenCaptureKit)</span>
-                <span className="font-semibold text-white">34%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
-                <div className="h-full bg-amber-500 rounded-full" style={{ width: '34%' }} />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-zinc-300">
-                <span>Linux (PipeWire / X11)</span>
-                <span className="font-semibold text-white">14%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
-                <div className="h-full bg-emerald-500 rounded-full" style={{ width: '14%' }} />
-              </div>
-            </div>
+          <div className="space-y-4 text-xs">
+            {data?.osBreakdown && data.osBreakdown.length > 0 ? (
+              data.osBreakdown.map((item: any) => {
+                const colorClass =
+                  item.os.toLowerCase().includes('win')
+                    ? 'bg-sky-500'
+                    : item.os.toLowerCase().includes('mac')
+                    ? 'bg-amber-500'
+                    : 'bg-emerald-500';
+                return (
+                  <div key={item.os} className="space-y-1.5">
+                    <div className="flex justify-between text-zinc-300">
+                      <span className="font-medium">{item.os}</span>
+                      <span className="font-semibold text-white">
+                        {item.count} devices ({item.percentage}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${colorClass}`}
+                        style={{ width: `${Math.max(item.percentage, 4)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-zinc-500">No client devices registered yet.</p>
+            )}
           </div>
         </Card>
 
@@ -104,36 +105,37 @@ export default function AdminUsageAnalyticsPage() {
             <span>Usage by Subscription Tier</span>
           </h3>
 
-          <div className="space-y-3 text-xs">
-            <div className="space-y-1">
-              <div className="flex justify-between text-zinc-300">
-                <span>Trial Tier (30 min/day limit)</span>
-                <span className="font-semibold text-white">45%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
-                <div className="h-full bg-zinc-400 rounded-full" style={{ width: '45%' }} />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-zinc-300">
-                <span>Silver Unlimited ($19)</span>
-                <span className="font-semibold text-white">35%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
-                <div className="h-full bg-rose-500 rounded-full" style={{ width: '35%' }} />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex justify-between text-zinc-300">
-                <span>Gold Intelligence ($39)</span>
-                <span className="font-semibold text-white">20%</span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
-                <div className="h-full bg-amber-500 rounded-full" style={{ width: '20%' }} />
-              </div>
-            </div>
+          <div className="space-y-4 text-xs">
+            {data?.tierBreakdown && data.tierBreakdown.length > 0 ? (
+              data.tierBreakdown.map((item: any) => {
+                const colorClass =
+                  item.tier === 'GOLD'
+                    ? 'bg-amber-500'
+                    : item.tier === 'ENTERPRISE'
+                    ? 'bg-purple-500'
+                    : item.tier === 'SILVER'
+                    ? 'bg-rose-500'
+                    : 'bg-zinc-500';
+                return (
+                  <div key={item.tier} className="space-y-1.5">
+                    <div className="flex justify-between text-zinc-300">
+                      <span className="font-medium">{item.name || item.tier}</span>
+                      <span className="font-semibold text-white">
+                        {item.count} users ({item.percentage}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-2 rounded-full bg-zinc-800 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${colorClass}`}
+                        style={{ width: `${Math.max(item.percentage, 4)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-zinc-500">No subscriber data recorded yet.</p>
+            )}
           </div>
         </Card>
       </div>

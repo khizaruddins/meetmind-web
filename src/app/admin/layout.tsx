@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AdminAuthProvider, useAdminAuth } from '../../lib/admin-auth-context';
 import { AdminSidebar } from '../../components/admin/AdminSidebar';
@@ -9,23 +9,28 @@ import { getAdminToken, getAdminRefreshToken } from '../../lib/api/client';
 
 function AuthenticatedAdminArea({ children }: { children: React.ReactNode }) {
   const { admin, loading } = useAdminAuth();
+  const [mounted, setMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // If on /admin/login, don't redirect
     if (pathname === '/admin/login') return;
 
-    if (!loading && !admin && !getAdminToken() && !getAdminRefreshToken()) {
+    if (mounted && !loading && !admin && !getAdminToken() && !getAdminRefreshToken()) {
       router.push('/admin/login');
     }
-  }, [admin, loading, router, pathname]);
+  }, [mounted, admin, loading, router, pathname]);
 
   if (pathname === '/admin/login') {
     return <>{children}</>;
   }
 
-  if (loading && !admin) {
+  if (!mounted) {
     return (
       <div className="min-h-screen bg-[#07080c] flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-amber-500/30 border-t-amber-500 animate-spin" />

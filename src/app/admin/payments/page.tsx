@@ -24,7 +24,7 @@ export default function AdminPaymentsPage() {
       <div>
         <h1 className="text-2xl font-bold font-heading text-white">Payment Transaction Ledger</h1>
         <p className="text-xs text-zinc-400 mt-1">
-          Review processed customer payments, charge statuses, and failed payment reasons.
+          Review processed customer payments, charge statuses, and failed payment reasons ({payments.length} transactions).
         </p>
       </div>
 
@@ -41,27 +41,27 @@ export default function AdminPaymentsPage() {
                   <th className="py-2.5 px-3">Amount</th>
                   <th className="py-2.5 px-3">Status</th>
                   <th className="py-2.5 px-3">Date</th>
-                  <th className="py-2.5 px-3">Details / Failure Reason</th>
+                  <th className="py-2.5 px-3">Gateway / Reference</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5 text-zinc-300">
                 {payments.map((p) => (
                   <tr key={p.id} className="hover:bg-white/[0.02]">
-                    <td className="py-3 px-3 font-mono text-[11px] text-white">{p.id.slice(0, 12)}...</td>
+                    <td className="py-3 px-3 font-mono text-[11px] text-white">{p.id.slice(0, 14)}...</td>
                     <td className="py-3 px-3">{p.user?.email || p.userId}</td>
-                    <td className="py-3 px-3 font-semibold">
-                      ${((p.amount || 0) / 100).toFixed(2)} {p.currency || 'USD'}
+                    <td className="py-3 px-3 font-semibold text-emerald-400 font-mono">
+                      ₹{((p.amount || 0) / 100).toLocaleString('en-IN')}
                     </td>
                     <td className="py-3 px-3">
-                      <Badge variant={p.status === 'SUCCEEDED' ? 'emerald' : 'rose'} size="sm">
+                      <Badge variant={p.status === 'SUCCEEDED' ? 'emerald' : p.status === 'PENDING' ? 'amber' : 'rose'} size="sm">
                         {p.status}
                       </Badge>
                     </td>
                     <td className="py-3 px-3 text-zinc-400">
                       {new Date(p.createdAt).toLocaleString()}
                     </td>
-                    <td className="py-3 px-3 text-zinc-500">
-                      {p.failureReason || 'Card charge settled successfully.'}
+                    <td className="py-3 px-3 text-zinc-400 font-mono text-[11px]">
+                      {p.stripePaymentIntentId || p.razorpayPaymentId || p.failureReason || 'Razorpay / Direct Settlement'}
                     </td>
                   </tr>
                 ))}
