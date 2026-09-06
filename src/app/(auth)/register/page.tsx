@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authApi } from '../../../lib/api/auth';
 import { useAuth } from '../../../lib/auth-context';
-import { getCustomerToken } from '../../../lib/api/client';
+import { getCustomerToken, getCustomerRefreshToken } from '../../../lib/api/client';
 import { Button } from '../../../components/shared/Button';
 import { Card } from '../../../components/shared/Card';
 import { Lock, Mail, User, ArrowRight, AlertCircle, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 export default function RegisterPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, signup } = useAuth();
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -27,8 +27,9 @@ export default function RegisterPage() {
 
   useEffect(() => {
     const token = getCustomerToken();
+    const refreshToken = getCustomerRefreshToken();
     if (!authLoading) {
-      if (user || token) {
+      if (user || token || refreshToken) {
         router.replace('/app/dashboard');
       } else {
         setCheckingAuth(false);
@@ -36,7 +37,7 @@ export default function RegisterPage() {
     }
   }, [user, authLoading, router]);
 
-  if (authLoading || (checkingAuth && typeof window !== 'undefined' && getCustomerToken())) {
+  if (authLoading || (checkingAuth && typeof window !== 'undefined' && (getCustomerToken() || getCustomerRefreshToken()))) {
     return (
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-rose-500/30 border-t-rose-500 animate-spin" />
@@ -58,12 +59,11 @@ export default function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
-      await authApi.signup({
+      await signup({
         firstName,
         lastName,
         email,
         password,
-        agreeToTerms: true,
       });
       router.push('/app/dashboard');
     } catch (err: any) {

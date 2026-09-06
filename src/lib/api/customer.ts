@@ -53,6 +53,10 @@ export const customerApi = {
     return apiClient('/subscription', {}, 'customer');
   },
 
+  async getPlans(): Promise<{ plans: PlanInfo[] }> {
+    return apiClient('/plans', {}, 'none');
+  },
+
   async changePlanPreview(targetPlan: string): Promise<any> {
     return apiClient('/subscription/change-plan/preview', {
       method: 'POST',
@@ -65,6 +69,76 @@ export const customerApi = {
       method: 'POST',
       body: JSON.stringify({ targetPlan, planCode: targetPlan }),
     }, 'customer');
+  },
+
+  async createRazorpayPaymentLink(planCode: string, callbackUrl?: string): Promise<{
+    paymentLinkId: string;
+    paymentLinkUrl: string;
+    status: string;
+    amount: number;
+    currency: string;
+    keyId: string;
+    orderId?: string;
+    isSimulation?: boolean;
+    plan: {
+      id?: string;
+      code: string;
+      name: string;
+      description?: string;
+      priceAmount: number;
+      currency: string;
+    };
+  }> {
+    try {
+      return await apiClient('/subscription/razorpay/payment-link', {
+        method: 'POST',
+        body: JSON.stringify({ planCode, callbackUrl }),
+      }, 'customer');
+    } catch (err: any) {
+      if (err?.status === 404) {
+        return apiClient('/subscription/checkout', {
+          method: 'POST',
+          body: JSON.stringify({ planCode, successUrl: callbackUrl }),
+        }, 'customer');
+      }
+      throw err;
+    }
+  },
+
+  async createRazorpayOrder(planCode: string): Promise<{
+    orderId: string;
+    amount: number;
+    currency: string;
+    keyId: string;
+    isSimulation?: boolean;
+  }> {
+    return apiClient('/subscription/razorpay/order', {
+      method: 'POST',
+      body: JSON.stringify({ planCode }),
+    }, 'customer');
+  },
+
+  async verifyRazorpayPayment(data: {
+    planCode: string;
+    razorpayPaymentId: string;
+    razorpayPaymentLinkId?: string;
+    razorpayOrderId?: string;
+    razorpaySignature?: string;
+  }): Promise<{ success: boolean; message: string; subscription: SubscriptionInfo }> {
+    try {
+      return await apiClient('/subscription/razorpay/verify', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }, 'customer');
+    } catch (err: any) {
+      if (err?.status === 404) {
+        return apiClient('/subscription/change-plan', {
+          method: 'POST',
+          body: JSON.stringify({ planCode: data.planCode, targetPlan: data.planCode }),
+        }, 'customer');
+      }
+      throw err;
+    }
   },
 
   async cancelSubscription(): Promise<{ success: boolean; subscription: SubscriptionInfo }> {

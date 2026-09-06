@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { AdminAuthProvider, useAdminAuth } from '../../lib/admin-auth-context';
 import { AdminSidebar } from '../../components/admin/AdminSidebar';
 import { AdminHeader } from '../../components/admin/AdminHeader';
-import { getAdminToken } from '../../lib/api/client';
+import { getAdminToken, getAdminRefreshToken } from '../../lib/api/client';
 
 function AuthenticatedAdminArea({ children }: { children: React.ReactNode }) {
   const { admin, loading } = useAdminAuth();
@@ -16,7 +16,7 @@ function AuthenticatedAdminArea({ children }: { children: React.ReactNode }) {
     // If on /admin/login, don't redirect
     if (pathname === '/admin/login') return;
 
-    if (!loading && !admin && !getAdminToken()) {
+    if (!loading && !admin && !getAdminToken() && !getAdminRefreshToken()) {
       router.push('/admin/login');
     }
   }, [admin, loading, router, pathname]);
@@ -25,7 +25,7 @@ function AuthenticatedAdminArea({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  if (loading) {
+  if (loading && !admin) {
     return (
       <div className="min-h-screen bg-[#07080c] flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-amber-500/30 border-t-amber-500 animate-spin" />
@@ -33,7 +33,7 @@ function AuthenticatedAdminArea({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!admin && !getAdminToken()) {
+  if (!admin && !getAdminToken() && !getAdminRefreshToken()) {
     return null;
   }
 

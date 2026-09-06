@@ -1,4 +1,10 @@
-import { apiClient, setAdminToken } from './client';
+import {
+  apiClient,
+  setAdminToken,
+  getAdminRefreshToken,
+  setAdminRefreshToken,
+  setAdminUser,
+} from './client';
 import {
   AdminDashboardMetrics,
   AdminUserListItem,
@@ -28,22 +34,34 @@ export const adminApi = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }, 'none');
-    setAdminToken(res.accessToken);
+    if (res.accessToken) setAdminToken(res.accessToken);
+    if (res.refreshToken) setAdminRefreshToken(res.refreshToken);
+    if (res.admin) setAdminUser(res.admin);
     return res;
   },
 
   async logout(): Promise<void> {
+    const refreshToken = getAdminRefreshToken();
     try {
-      await apiClient('/admin/auth/logout', { method: 'POST' }, 'admin');
+      await apiClient('/admin/auth/logout', {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken }),
+      }, 'admin');
     } catch {
       // ignore
     } finally {
       setAdminToken(null);
+      setAdminRefreshToken(null);
+      setAdminUser(null);
     }
   },
 
   async getMe(): Promise<any> {
-    return apiClient('/admin/auth/me', {}, 'admin');
+    const res = await apiClient('/admin/auth/me', {}, 'admin');
+    if (res?.admin) {
+      setAdminUser(res.admin);
+    }
+    return res;
   },
 
   async getDashboard(): Promise<AdminDashboardMetrics> {

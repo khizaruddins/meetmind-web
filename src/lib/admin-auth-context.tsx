@@ -2,7 +2,14 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { adminApi, AdminAuthResponse } from './api/admin';
-import { getAdminToken, setAdminToken } from './api/client';
+import {
+  getAdminToken,
+  setAdminToken,
+  getAdminRefreshToken,
+  setAdminRefreshToken,
+  getAdminUser,
+  setAdminUser,
+} from './api/client';
 import { useRouter } from 'next/navigation';
 
 interface AdminAuthContextType {
@@ -16,23 +23,34 @@ interface AdminAuthContextType {
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [admin, setAdmin] = useState<AdminAuthResponse['admin'] | null>(null);
+  const [admin, setAdmin] = useState<AdminAuthResponse['admin'] | null>(() => getAdminUser());
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
 
   const refreshAdmin = async () => {
     const token = getAdminToken();
-    if (!token) {
+    const refreshToken = getAdminRefreshToken();
+    if (!token && !refreshToken) {
       setAdmin(null);
+      setAdminUser(null);
       setLoading(false);
       return;
     }
     try {
       const res = await adminApi.getMe();
-      setAdmin(res.admin || res);
-    } catch {
-      setAdminToken(null);
-      setAdmin(null);
+      const adminData = res?.admin || res;
+      setAdmin(adminData);
+      setAdminUser(adminData);
+    } catch (err: any) {
+      if (err?.status === 401 || err?.status === 403) {
+        setAdminToken(null);
+        setAdminRefreshToken(null);
+        setAdminUser(null);
+        setAdmin(null);
+      } else {
+        const cached = getAdminUser();
+        if (cached) setAdmin(cached);
+      }
     } finally {
       setLoading(false);
     }
@@ -47,6 +65,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const res = await adminApi.login(email, pass);
       setAdmin(res.admin);
+      setAdminUser(res.admin);
       router.push('/admin/dashboard');
     } finally {
       setLoading(false);
@@ -56,6 +75,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const logout = async () => {
     await adminApi.logout();
     setAdmin(null);
+    setAdminUser(null);
     router.push('/admin/login');
   };
 
@@ -73,3 +93,4 @@ export const useAdminAuth = () => {
   }
   return context;
 };
+

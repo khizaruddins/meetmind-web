@@ -1,4 +1,10 @@
-import { apiClient, setCustomerToken } from './client';
+import {
+  apiClient,
+  setCustomerToken,
+  getCustomerRefreshToken,
+  setCustomerRefreshToken,
+  setCustomerUser,
+} from './client';
 import { UserProfile } from '../types';
 
 export interface AuthResponse {
@@ -20,7 +26,9 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify(data),
     }, 'none');
-    setCustomerToken(res.accessToken);
+    if (res.accessToken) setCustomerToken(res.accessToken);
+    if (res.refreshToken) setCustomerRefreshToken(res.refreshToken);
+    if (res.user) setCustomerUser(res.user);
     return res;
   },
 
@@ -29,22 +37,46 @@ export const authApi = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }, 'none');
-    setCustomerToken(res.accessToken);
+    if (res.accessToken) setCustomerToken(res.accessToken);
+    if (res.refreshToken) setCustomerRefreshToken(res.refreshToken);
+    if (res.user) setCustomerUser(res.user);
+    return res;
+  },
+
+  async refresh(): Promise<AuthResponse> {
+    const refreshToken = getCustomerRefreshToken();
+    if (!refreshToken) throw new Error('No refresh token available');
+    const res = await apiClient<AuthResponse>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    }, 'none');
+    if (res.accessToken) setCustomerToken(res.accessToken);
+    if (res.refreshToken) setCustomerRefreshToken(res.refreshToken);
     return res;
   },
 
   async logout(): Promise<void> {
+    const refreshToken = getCustomerRefreshToken();
     try {
-      await apiClient('/auth/logout', { method: 'POST' }, 'customer');
+      await apiClient('/auth/logout', {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken }),
+      }, 'customer');
     } catch {
       // ignore
     } finally {
       setCustomerToken(null);
+      setCustomerRefreshToken(null);
+      setCustomerUser(null);
     }
   },
 
   async getMe(): Promise<{ user: UserProfile }> {
-    return apiClient<{ user: UserProfile }>('/auth/me', {}, 'customer');
+    const res = await apiClient<{ user: UserProfile }>('/auth/me', {}, 'customer');
+    if (res?.user) {
+      setCustomerUser(res.user);
+    }
+    return res;
   },
 
   async forgotPassword(email: string): Promise<{ success: boolean; message: string }> {

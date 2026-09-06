@@ -5,13 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { authApi } from '../../../lib/api/auth';
 import { useAuth } from '../../../lib/auth-context';
-import { getCustomerToken } from '../../../lib/api/client';
+import { getCustomerToken, getCustomerRefreshToken } from '../../../lib/api/client';
 import { Button } from '../../../components/shared/Button';
 import { Card } from '../../../components/shared/Card';
 import { Lock, Mail, ArrowRight, ShieldCheck, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, login } = useAuth();
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,16 +23,20 @@ export default function LoginPage() {
 
   useEffect(() => {
     const token = getCustomerToken();
+    const refreshToken = getCustomerRefreshToken();
     if (!authLoading) {
-      if (user || token) {
-        router.replace('/app/dashboard');
+      if (user || token || refreshToken) {
+        const redirectParam = typeof window !== 'undefined'
+          ? new URLSearchParams(window.location.search).get('redirect')
+          : null;
+        router.replace(redirectParam || '/app/dashboard');
       } else {
         setCheckingAuth(false);
       }
     }
   }, [user, authLoading, router]);
 
-  if (authLoading || (checkingAuth && typeof window !== 'undefined' && getCustomerToken())) {
+  if (authLoading || (checkingAuth && typeof window !== 'undefined' && (getCustomerToken() || getCustomerRefreshToken()))) {
     return (
       <div className="min-h-screen bg-[#09090b] flex items-center justify-center">
         <div className="w-8 h-8 rounded-full border-2 border-rose-500/30 border-t-rose-500 animate-spin" />
@@ -45,8 +49,11 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
     try {
-      await authApi.login(email, password);
-      router.push('/app/dashboard');
+      await login(email, password);
+      const redirectParam = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('redirect')
+        : null;
+      router.push(redirectParam || '/app/dashboard');
     } catch (err: any) {
       setError(err.message || 'Invalid email or password');
     } finally {

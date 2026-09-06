@@ -45,6 +45,7 @@ export interface SubscriptionInfo {
   userId: string;
   planId: string;
   plan: PlanInfo;
+  provider?: string;
   status: 'TRIAL' | 'ACTIVE' | 'PAST_DUE' | 'CANCELLED' | 'EXPIRED';
   currentPeriodStart: string;
   currentPeriodEnd: string;
