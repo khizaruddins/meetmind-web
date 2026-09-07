@@ -3,7 +3,7 @@ import { FloatingCapsuleNavbar } from '../../components/landing/FloatingCapsuleN
 import { Footer } from '../../components/shared/Footer';
 import { Card } from '../../components/shared/Card';
 import { Badge } from '../../components/shared/Badge';
-import { CheckCircle2, Download, Tag } from 'lucide-react';
+import { CheckCircle2, Download, Tag, ExternalLink } from 'lucide-react';
 
 export default function ReleasesPage() {
   const releases = [
@@ -39,14 +39,33 @@ export default function ReleasesPage() {
     <div className="min-h-screen bg-[#09090b] text-zinc-100">
       <FloatingCapsuleNavbar />
       <main className="pt-32 pb-24 px-6 max-w-4xl mx-auto space-y-12">
-        <div className="text-center space-y-3">
+        <div className="text-center space-y-4">
           <Badge variant="rose">Changelog & History</Badge>
           <h1 className="text-3xl md:text-4xl font-bold font-heading text-white tracking-tight">
-            Release Notes
+            Release Notes & Builds
           </h1>
-          <p className="text-sm text-zinc-400">
-            Track all updates, bug fixes, and feature additions to MeetMind.
+          <p className="text-sm text-zinc-400 max-w-xl mx-auto">
+            Track all updates, bug fixes, and feature additions to MeetMind. Download installers and binaries directly from our GitHub release distribution.
           </p>
+
+          <div className="pt-2 flex items-center justify-center gap-3">
+            <a
+              href="https://github.com/khizaruddins/meetmind-downloads/releases"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white border border-white/20 transition-all shadow-lg hover:shadow-white/5"
+            >
+              <span>View GitHub Releases Repository</span>
+              <ExternalLink className="w-3.5 h-3.5 text-zinc-300" />
+            </a>
+            <a
+              href="/download"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-xs font-semibold text-white shadow-lg shadow-rose-500/20 transition-all"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download Desktop App</span>
+            </a>
+          </div>
         </div>
 
         <div className="space-y-8">

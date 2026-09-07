@@ -96,6 +96,14 @@ The official web application and SaaS portal for **MeetMind** — the next-gener
 - **System Health Monitor**: Live latency gauges and operational status for PostgreSQL, Billing Providers, Notification Queue, and System Memory.
 - **Audit Logs Explorer**: Immutable audit trail logging actor ID, action key, entity target, metadata payload, IP address, and timestamps.
 
+### 4. Desktop Client Distribution & Downloads
+The desktop recording engine binaries are packaged and distributed through **[GitHub Releases](https://github.com/khizaruddins/meetmind-downloads/releases)**:
+- **Windows (x64)**: [`MeetMind-Windows-x64-Setup.exe`](https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/MeetMind-Windows-x64-Setup.exe)
+- **macOS (Apple Silicon arm64)**: [`MeetMind-macOS-arm64.dmg`](https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/MeetMind-macOS-arm64.dmg)
+- **Linux Universal (x86_64)**: [`MeetMind-Linux-x86_64.AppImage`](https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/MeetMind-Linux-x86_64.AppImage)
+- **Linux Debian / Ubuntu (amd64)**: [`MeetMind-Linux-amd64.deb`](https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/MeetMind-Linux-amd64.deb)
+- **SHA-256 Checksums**: [`SHA256SUMS.txt`](https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/SHA256SUMS.txt)
+
 ---
 
 ## 📂 Directory Structure

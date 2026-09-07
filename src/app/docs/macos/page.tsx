@@ -11,14 +11,14 @@ export default function MacOsDocsPage() {
           Installing MeetMind on macOS
         </h1>
         <p className="text-xs text-zinc-400">
-          Guide for Apple Silicon (M1/M2/M3/M4) and Intel Macs running macOS Monterey, Ventura, Sonoma, and Sequoia.
+          Guide for Apple Silicon (M1/M2/M3/M4) Macs running macOS Monterey, Ventura, Sonoma, and Sequoia (macOS 12.3+).
         </p>
       </div>
 
       <div className="space-y-4 text-xs text-zinc-300 leading-relaxed">
         <h3 className="text-sm font-semibold text-white">1. Download DMG</h3>
         <p>
-          Download <code>MeetMind-1.0.0-arm64.dmg</code> (for Apple Silicon) or the Intel DMG from the <a href="/download" className="text-rose-400 hover:underline">Download page</a>.
+          Download <a href="https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/MeetMind-macOS-arm64.dmg" className="text-rose-400 hover:underline"><code>MeetMind-macOS-arm64.dmg</code></a> from the <a href="/download" className="text-rose-400 hover:underline">Download page</a> or directly from <a href="https://github.com/khizaruddins/meetmind-downloads/releases" target="_blank" rel="noopener noreferrer" className="text-rose-400 hover:underline">GitHub Releases</a>.
         </p>
 
         <h3 className="text-sm font-semibold text-white">2. Drag to Applications</h3>

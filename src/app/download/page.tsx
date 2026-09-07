@@ -15,30 +15,58 @@ export default function DownloadPage() {
 
         {/* Checksums & System Requirements Table */}
         <div className="max-w-4xl mx-auto px-6 mb-16">
-          <Card variant="elevated" className="p-6 md:p-8 space-y-4 border-white/10">
-            <h3 className="text-base font-bold text-white font-heading">
-              Minimum System Requirements & Build Checksums
-            </h3>
-            <div className="space-y-3 text-xs text-zinc-300">
+          <Card variant="elevated" className="p-6 md:p-8 space-y-5 border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-white font-heading">
+                  System Requirements & Hash Verification
+                </h3>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Verify binary integrity before running across all supported desktop platforms.
+                </p>
+              </div>
+              <a
+                href="https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/SHA256SUMS.txt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-mono text-rose-400 hover:text-rose-300 underline underline-offset-4"
+              >
+                Download SHA256SUMS.txt →
+              </a>
+            </div>
+
+            <div className="space-y-4 text-xs text-zinc-300">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5">
-                  <div className="font-semibold text-white mb-1">Linux Requirements</div>
-                  <div className="text-zinc-400 text-[11px]">glibc 2.31+, PipeWire 0.3+ or X11, 4 GB RAM.</div>
+                <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5 space-y-1">
+                  <div className="font-semibold text-white">Linux Requirements</div>
+                  <div className="text-zinc-400 text-[11px] leading-relaxed">
+                    glibc 2.31+, PipeWire 0.3+ or X11, 4 GB RAM. Supported on Ubuntu 20.04+, Debian 11+, Fedora, and Arch.
+                  </div>
                 </div>
-                <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5">
-                  <div className="font-semibold text-white mb-1">Windows Requirements</div>
-                  <div className="text-zinc-400 text-[11px]">Windows 10 Build 19041+ or Windows 11, DirectX 11, 4 GB RAM.</div>
+                <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5 space-y-1">
+                  <div className="font-semibold text-white">Windows Requirements</div>
+                  <div className="text-zinc-400 text-[11px] leading-relaxed">
+                    Windows 10 Build 19041+ or Windows 11 64-bit, DirectX 11 GPU, 4 GB RAM.
+                  </div>
                 </div>
-                <div className="p-3 rounded-xl bg-zinc-900/60 border border-white/5">
-                  <div className="font-semibold text-white mb-1">macOS Requirements</div>
-                  <div className="text-zinc-400 text-[11px]">macOS 12.3+ (Monterey, Ventura, Sonoma, Sequoia), 4 GB RAM.</div>
+                <div className="p-3.5 rounded-xl bg-zinc-900/60 border border-white/5 space-y-1">
+                  <div className="font-semibold text-white">macOS Requirements</div>
+                  <div className="text-zinc-400 text-[11px] leading-relaxed">
+                    macOS 12.3+ (Monterey, Ventura, Sonoma, Sequoia) on Apple Silicon (M1/M2/M3/M4), 4 GB RAM.
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10 font-mono text-[11px] space-y-1.5 text-zinc-400">
-                <p>SHA-256 (Linux AppImage): <code>e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</code></p>
-                <p>SHA-256 (Windows x64): <code>a8f5f167f44f4964e6c998dee827110c01759f33b30cdc01e908643d9ab64162</code></p>
-                <p>SHA-256 (macOS ARM64): <code>c57a2c26279f0674d0d39369b2b3a6ea237a6b72808b8b0e8c7c72f7a931668b</code></p>
+              <div className="p-4 rounded-xl bg-zinc-950/80 border border-white/10 font-mono text-[11px] space-y-2 text-zinc-400">
+                <div className="text-zinc-300 font-semibold font-sans text-xs">Verify Hashes in Terminal</div>
+                <div className="space-y-1">
+                  <p className="text-zinc-500"># Linux / macOS terminal verification:</p>
+                  <p className="text-zinc-200 selection:bg-rose-500/30">sha256sum -c SHA256SUMS.txt</p>
+                </div>
+                <div className="space-y-1 pt-1 border-t border-white/5">
+                  <p className="text-zinc-500"># Windows PowerShell verification:</p>
+                  <p className="text-zinc-200 selection:bg-rose-500/30">Get-FileHash .\MeetMind-Windows-x64-Setup.exe -Algorithm SHA256</p>
+                </div>
               </div>
             </div>
           </Card>

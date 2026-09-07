@@ -18,12 +18,12 @@ export default function LinuxDocsPage() {
       <div className="space-y-4 text-xs text-zinc-300 leading-relaxed">
         <h3 className="text-sm font-semibold text-white">1. Download AppImage or DEB</h3>
         <p>
-          Download <code>MeetMind-1.0.0-x86_64.AppImage</code> or the <code>.deb</code> package from the <a href="/download" className="text-rose-400 hover:underline">Download page</a>.
+          Download <a href="https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/MeetMind-Linux-x86_64.AppImage" className="text-rose-400 hover:underline"><code>MeetMind-Linux-x86_64.AppImage</code></a> or the <a href="https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/MeetMind-Linux-amd64.deb" className="text-rose-400 hover:underline"><code>.deb</code></a> package from the <a href="/download" className="text-rose-400 hover:underline">Download page</a> or directly from <a href="https://github.com/khizaruddins/meetmind-downloads/releases" target="_blank" rel="noopener noreferrer" className="text-rose-400 hover:underline">GitHub Releases</a>.
         </p>
 
         <h3 className="text-sm font-semibold text-white">2. Make Executable (AppImage)</h3>
         <div className="p-3.5 rounded-xl bg-zinc-950 font-mono text-zinc-300 border border-white/10">
-          <code>chmod +x MeetMind-1.0.0-x86_64.AppImage<br />./MeetMind-1.0.0-x86_64.AppImage</code>
+          <code>chmod +x MeetMind-Linux-x86_64.AppImage<br />./MeetMind-Linux-x86_64.AppImage</code>
         </div>
 
         <h3 className="text-sm font-semibold text-white">3. Wayland & PipeWire Portal Behavior</h3>

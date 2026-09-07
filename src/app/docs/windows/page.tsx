@@ -18,7 +18,7 @@ export default function WindowsDocsPage() {
       <div className="space-y-4 text-xs text-zinc-300 leading-relaxed">
         <h3 className="text-sm font-semibold text-white">1. Download Installer</h3>
         <p>
-          Download the latest <code>MeetMind-1.0.0-x64-Setup.exe</code> from the <a href="/download" className="text-rose-400 hover:underline">Download page</a>.
+          Download the latest <a href="https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/MeetMind-Windows-x64-Setup.exe" className="text-rose-400 hover:underline"><code>MeetMind-Windows-x64-Setup.exe</code></a> from the <a href="/download" className="text-rose-400 hover:underline">Download page</a> or directly from <a href="https://github.com/khizaruddins/meetmind-downloads/releases" target="_blank" rel="noopener noreferrer" className="text-rose-400 hover:underline">GitHub Releases</a>.
         </p>
 
         <h3 className="text-sm font-semibold text-white">2. Run Setup</h3>
