@@ -25,14 +25,24 @@ export default function DownloadPage() {
                   Verify binary integrity before running across all supported desktop platforms.
                 </p>
               </div>
-              <a
-                href="https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/SHA256SUMS.txt"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs font-mono text-rose-400 hover:text-rose-300 underline underline-offset-4"
-              >
-                Download SHA256SUMS.txt →
-              </a>
+              <div className="flex flex-col sm:items-end gap-1.5">
+                <a
+                  href="https://github.com/khizaruddins/meetmind-downloads"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-mono text-zinc-300 hover:text-white underline underline-offset-4"
+                >
+                  github.com/khizaruddins/meetmind-downloads →
+                </a>
+                <a
+                  href="https://github.com/khizaruddins/meetmind-downloads/releases/latest/download/SHA256SUMS.txt"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-mono text-rose-400 hover:text-rose-300 underline underline-offset-4"
+                >
+                  Download SHA256SUMS.txt →
+                </a>
+              </div>
             </div>
 
             <div className="space-y-4 text-xs text-zinc-300">
