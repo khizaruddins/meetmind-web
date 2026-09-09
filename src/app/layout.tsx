@@ -1,6 +1,28 @@
 import type { Metadata } from 'next';
+import { Syne, Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AppProviders } from '../components/providers/AppProviders';
+
+const syne = Syne({
+  subsets: ['latin'],
+  variable: '--font-heading',
+  display: 'swap',
+  weight: ['500', '600', '700', '800'],
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+  weight: ['400', '500'],
+});
 
 export const metadata: Metadata = {
   title: 'MeetMind — Automatic Meeting Recorder & Intelligence',
@@ -47,8 +69,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark scroll-smooth">
-      <body className="min-h-screen bg-[#09090b] text-zinc-100 antialiased selection:bg-rose-500 selection:text-white">
+    <html
+      lang="en"
+      className={`dark scroll-smooth ${syne.variable} ${plusJakarta.variable} ${jetbrainsMono.variable}`}
+    >
+      <body className="min-h-screen bg-[#09090b] font-sans text-zinc-100 antialiased selection:bg-rose-500 selection:text-white">
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

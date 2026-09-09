@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Chrome, Play, Mic, Monitor, LogOut, CheckCircle2, Sparkles, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Chrome, Play, Mic, LogOut, CheckCircle2, Sparkles } from 'lucide-react';
 import { Card } from '../shared/Card';
 import { Badge } from '../shared/Badge';
 
@@ -63,7 +64,13 @@ export const ScrollStorySection: React.FC = () => {
 
   return (
     <section id="how-it-works" className="py-24 px-6 max-w-6xl mx-auto">
-      <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+      <motion.div
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-10%' }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="text-center max-w-2xl mx-auto mb-16 space-y-3"
+      >
         <Badge variant="rose">Frictionless Workflow</Badge>
         <h2 className="text-3xl md:text-4xl font-bold font-heading text-white tracking-tight">
           How MeetMind Works
@@ -71,7 +78,7 @@ export const ScrollStorySection: React.FC = () => {
         <p className="text-sm text-zinc-400">
           From the second you join a meeting to having an MP4 file ready on your disk—completely automated.
         </p>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         {/* Step List on the Left */}
