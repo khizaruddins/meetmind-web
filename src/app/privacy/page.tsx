@@ -39,6 +39,19 @@ export default function PrivacyPage() {
               Payment data is processed directly by PCI-compliant payment providers (e.g. Stripe). We only store payment method metadata such as card brand, expiration date, and last four digits.
             </p>
           </section>
+
+          <section className="space-y-2">
+            <h2 className="text-base font-semibold text-white">5. Optical Character Recognition (OCR) &amp; Text Extraction</h2>
+            <p>
+              MeetMind includes user-triggered OCR to extract editable text from screenshots. When you explicitly trigger text extraction:
+            </p>
+            <ul className="list-disc pl-5 space-y-1 text-zinc-300">
+              <li>Screenshots are never uploaded automatically. Extraction only happens upon direct user action.</li>
+              <li>Image buffers are transmitted securely via TLS 1.3 to our backend OCR gateway and forwarded to our OCR engine in-memory.</li>
+              <li>Images are processed transiently in memory and immediately discarded. Neither MeetMind nor our OCR provider stores or retains your screenshot images on disk.</li>
+              <li>Extracted text is returned directly to your local desktop client and saved into your private local SQLite database. We do not index, retain, or train AI models on your extracted text.</li>
+            </ul>
+          </section>
         </div>
       </main>
       <Footer />
